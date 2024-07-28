@@ -19,8 +19,9 @@ import truncateEthAddress from 'truncate-eth-address';
 // const clientId = process.env.REACT_APP_CLIENT_ID; // get from https://dashboard.web3auth.io
 // const clientId = "BGpGpXliyOvZqqOiBsC3il_LS37PYXTTWLmOFpU3aQFI7EseTEIoAR0TmFzcwkloA2gR6x2MYX9BCMcqzztt0faf0V0FquDt69peT6lhGcTJK2UoF2mCUo4ZJaILzd2bEShs6nQfV5YBOffL5VsnC8KPv7c49vkd24"; // get from https://dashboard.web3auth.io
 
-const clientId =
-  "BCrqDXodbfN-LAcUdfhNLc7CPeMVup9CrljBTrgOx9oOSlOGfPAkV9O_NfLlxts4ooEorHaJxftFSCgyP16m0sI"; // get from https://dashboard.web3auth.io
+// const clientId =
+// "BCrqDXodbfN-LAcUdfhNLc7CPeMVup9CrljBTrgOx9oOSlOGfPAkV9O_NfLlxts4ooEorHaJxftFSCgyP16m0sI"; // get from https://dashboard.web3auth.io
+const clientId = process.env.REACT_APP_CLIENT_ID;
 
 // IMP END - Dashboard Registration
 const chainConfig = {
@@ -173,7 +174,7 @@ function App() {
 
         setAddress(initAddress);
         // setAddress("0x5B38Da6a701c568545dCfcB03FcB875f56beddC4");
-        console.log("Address", address);
+        console.log("Address1", address);
 
         setEth(
           web3.utils.fromWei(
@@ -449,7 +450,7 @@ function App() {
     console.log("Args: ",...args);
     //antiguo y erroneo signMessage: 0x561acaecb5479e9cf043f1963307fb497666cd8b5ac907024ca99d385a913d835d642712d98c60d978cbd6a5daaface6fa5febdab3dafa15b599b058b773dd931b
   }                           //otro:0x0a53478d601643e22e65347f143fe631aab81a05107fb1d3d177f48b62e2a31a3c17c695e2ba0127ec91259b8b7e419a3e2d92cf096ab6bab8fd76da8cdd68161b
-
+  console.log("Address2", address);
   const loggedInView = (
     <>
       <div className="flex items-center justify-center mx-auto ">
