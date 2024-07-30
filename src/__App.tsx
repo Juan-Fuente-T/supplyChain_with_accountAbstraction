@@ -343,7 +343,8 @@ function App() {
   );
 
   const unloggedInView = (
-    <button onClick={login} className="card">
+    // <button onClick={login} className="card">
+    <button className="text-4xl font-bold text-center w-1/3" onClick={login}>
       Login
     </button>
   );
