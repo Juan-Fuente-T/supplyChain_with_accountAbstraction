@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 // import '../App.css';
 // import './App.css';
-import  formatDate  from  './FormatDate';
+import  formatDate  from  '../utils/FormatDate';
 
 // interface ProductData {
 //   modelNumber: string;

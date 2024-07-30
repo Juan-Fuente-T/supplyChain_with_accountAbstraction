@@ -6,8 +6,8 @@ import { CHAIN_NAMESPACES, IProvider, UserInfo, WEB3AUTH_NETWORK } from "@web3au
 import { Contract, ethers, hashMessage, JsonRpcProvider, Wallet } from 'ethers';
 import { abi } from "./assets/abis/supplyChainModSigner";
 import { CONTRACT_ADDRESS } from "./assets/constants";
-import DataProvider from './DataProvider';
-import DataEntry from './DataEntry';
+import DataProvider from './components/DataProvider';
+import DataEntry from './components/DataEntry';
 // import truncateEthAddress from 'truncate-eth-address';
 // import "./App.css";
 import { ToastContainer, toast } from 'react-toastify';
