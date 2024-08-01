@@ -109,17 +109,20 @@ const DataProvider: React.FC<DataProviderProps> = ({
       </div>
       <div className="flex justify-around gap-4 place-items-center">
         <img
-          src="supplychain_manufacturer.png"
+          // src="supplychain_manufacturer.png"
+          src="supplychainmanufacturer.png"
           className={`w-52 h-28 rounded-md transform transition-transform duration-300 ${participant_type === 'Manufacturer' ? 'scale-120 filter-none h-36 border-2 border-stone-800 rounded-md' : ''}`}
           alt="Manufacturer"
         />
         <img
-          src="supplychain_supplier1.png"
+          // src="supplychain_supplier1.png"
+          src="supplychainsupplier2.png"
           className={`w-52 h-28 rounded-md transform transition-transform duration-300 ${participant_type === 'Supplier' ? 'scale-120 filter hue-rotate-90  h-36 border-2 border-stone-800 rounded-md' : ''}`}
           alt="Supplier"
         />
         <img
-          src="supplychain_customer.png"
+          // src="supplychain_customer.png"
+          src="supplychaincustomer.png"
           className={`w-52 h-28 rounded-md transform transition-transform duration-300 ${participant_type === 'Consumer' ? 'scale-120 filter hue-rotate-180  h-36 border-2 border-stone-800 rounded-md' : ''}`}
           alt="Consumer"
         />
