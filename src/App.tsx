@@ -1,4 +1,8 @@
 import { useEffect, useState } from 'react';
+import ProductModal from './components/ProductModal';
+import  formatDate  from  './utils/FormatDate';
+import TraceabilityModal from './components/TraceabilityModal';
+
 import Web3 from "web3";
 import { Web3Auth } from "@web3auth/modal";
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
@@ -73,17 +77,17 @@ class Participant {
   id: string;
   name: string;
   // pass: string;
-  participant_type: string;
+  participantType: string;
   participantAddress: string;
 
   // constructor(name: string, pass: string, participantType: string, participantAddress: string) {
   constructor(name: string, participantType: string, participantAddress: string, participantId: string) {
     this.name = name;
     // this.pass = pass;
-    this.participant_type = participantType;
+    this.participantType = participantType;
     this.participantAddress = participantAddress;
     this.id = `participant-${participantId}-` + crypto.randomUUID(); // Asegúrate de que crypto.randomUUID() esté disponible en tu entorno
-    console.log("Datos Participant: ", name, participantType, participantAddress, this.id);
+    console.log("Datos Participant: ", this.name, this.participantType, this.participantAddress, this.id);
   }
 }
 class Product {
@@ -94,18 +98,20 @@ class Product {
   participantName: string;
   participantType: string;
   productCost: number | undefined;
-  mfgTimeStamp: Date | undefined;
+  // mfgTimeStamp: Date | undefined;
+  mfgTimeStamp: string;
   participantAddress: string;
 
   // constructor(ownerId: number, modelNumber: string, serialNumber: string, participantName: string, participantType: string, productCost: number, mfgTimeStamp: Date, participantAddress: string) {
-  constructor(modelNumber: string, serialNumber: string, participantName: string, participantType: string, productCost: number, mfgTimeStamp: Date, participantAddress: string, addProductID: string) {
+  constructor(modelNumber: string, serialNumber: string, participantName: string, participantType: string, productCost: number, _mfgTimeStamp: bigint, participantAddress: string, addProductID: string) {
     // this.ownerId = ownerId;
     this.modelNumber = modelNumber;
     this.serialNumber = serialNumber;
     this.participantName = participantName;
     this.participantType = participantType;
     this.productCost = productCost;
-    this.mfgTimeStamp = mfgTimeStamp;
+    // this.mfgTimeStamp = mfgTimeStamp;
+    this.mfgTimeStamp = formatDate(_mfgTimeStamp );
     this.participantAddress = participantAddress;
     this.id = `product-${addProductID}-` + crypto.randomUUID(); // Asegúrate de que crypto.randomUUID() esté disponible en tu entorno
     console.log("Datos Producto: ", modelNumber, serialNumber, productCost, this.id);
@@ -117,16 +123,16 @@ class Ownership {
   productOwnerId: number;
   // pass: string;
   productOwnerAddress: string;
-  trxTimeStamp: Date;
+  trxTimeStamp: string;
 
   // constructor(name: string, pass: string, participantType: string, participantAddress: string) {
-  constructor(productId: number, productOwnerId: number, productOwnerAddress: string, trxTimeStamp: Date, ownershipId: string) {
+  constructor(productId: number, productOwnerId: number, productOwnerAddress: string, _trxTimeStamp: bigint, ownershipId: string) {
     this.productId = productId;
     this.productOwnerId = productOwnerId;
     this.productOwnerAddress = productOwnerAddress;
-    this.trxTimeStamp = trxTimeStamp;
+    this.trxTimeStamp = formatDate(_trxTimeStamp);
     this.id = `ownership-${ownershipId}-` + crypto.randomUUID(); // Asegúrate de que crypto.randomUUID() esté disponible en tu entorno
-    console.log("Datos Participant: ", productId, productOwnerId, productOwnerAddress, trxTimeStamp, this.id);
+    console.log("Datos Ownership: ", productId, productOwnerId, productOwnerAddress, this.trxTimeStamp, this.id);
   }
 }
 
@@ -215,6 +221,7 @@ function App(): JSX.Element {
   const [address, setAddress] = useState<string>("");
   const [contract, setContract] = useState<Contract | null>(null);
 
+  const [isTraceabilityModalOpen, setIsTraceabilityModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [addedProduct, setAddedProduct] = useState<Product | null>(null);
   // const app = initializeApp(firebaseConfig);
@@ -232,24 +239,24 @@ function App(): JSX.Element {
         if (web3auth.provider) {
           setProvider(web3auth.provider);
           const user: Partial<UserInfo> = await web3auth.getUserInfo();
-          console.log("USER", user);
+          // console.log("USER", user);
           setUser(user);
 
           const w3aProvider: ethers.BrowserProvider = new ethers.BrowserProvider(
             web3auth.provider
           );
-          console.log("w3aProvider", w3aProvider);
+          // console.log("w3aProvider", w3aProvider);
 
           const w3aSigner: ethers.JsonRpcSigner = await w3aProvider.getSigner();
           setSigner(w3aSigner);
-          console.log("w3aSigner", w3aSigner);
+          // console.log("w3aSigner", w3aSigner);
 
           const web3 = new Web3(web3auth.provider as any);
 
           let initAddress: any = await web3.eth.getAccounts();
           initAddress = initAddress[0];
 
-          console.log("initAddress", initAddress);
+          // console.log("initAddress", initAddress);
           setAddress(initAddress);
 
           if (web3auth.connected) {
@@ -267,16 +274,17 @@ function App(): JSX.Element {
 
           const initContract = new Contract(CONTRACT_ADDRESS, abi, signer);
           setContract(initContract);
-          console.log("Contract", initContract);
+          // console.log("Contract", initContract);
 
           if (productId > 0 || provenanceData) {
-            // console.log("Prueba");
+            console.log("PRUEBA");
             fetchProductData();
             console.log("product", productData);
             fetchProvenanceData();
+            console.log("PROVENANCE", provenanceData);
           }
 
-          console.log("Provider", web3auth.provider);
+          // console.log("Provider", web3auth.provider);
           setIsLoading(false);
         } else {
           throw new Error("Provider not initialized");
@@ -404,17 +412,21 @@ function App(): JSX.Element {
       const result: any = await contract?.getParticipant(participantId);
       if (result && result.length === 3) {
         const [participantName, participantType, productOwnerAddress] = result;
-        if (participantName !== '' && participantType !== '' && productOwnerAddress !== '0x0000000000000000000000000000000000000000') {
-
+        console.log("Participant Name:", participantName);
+        console.log("Participant Type:", participantType);
+        console.log("Product Owner Address:", productOwnerAddress);
+        if (participantName.trim() !== '' && participantType.trim() !== '' && productOwnerAddress !== '0x0000000000000000000000000000000000000000') {
           setParticipantData(result);
+  
           let participant = new Participant(
-            result ? (result[0]).toString() : '',
-            result ? (result[1]).toString() : '',
-            result ? (result[2]).toString() : '',
+            participantName.toString(),
+            participantType.toString(),
+            productOwnerAddress.toString(),
             participantId.toString()
           );
-          if (participantName && participantType && participantAddress) {
-            addItemToLocalStorage(participant, "participant");
+          console.log("Participant Object:", participant);
+          if (participant.name.trim() !== '' && participant.participantType.trim() !== '' && participant.participantAddress !== '0x0000000000000000000000000000000000000000') {           
+             addItemToLocalStorage(participant, "participant");
           } else {
             console.error("Invalid participantId data:", participant);
           }
@@ -422,10 +434,10 @@ function App(): JSX.Element {
           console.error("Invalid data received from contract:", result);
         }
       } else {
-        console.error("No valid data found for ownership ID:", ownershipId);
+        console.error("No valid data found for participant ID:", ownershipId);
       }
     } catch (error) {
-      console.error("Error fetching ownership data:", error);
+      console.error("Error fetching participant data:", error);
     }
   };
 
@@ -451,17 +463,19 @@ function App(): JSX.Element {
         // let mfgTimeStamp = new Date();
         //   _productController = localStorage.getItem(productController);
         //   if(parseInt(productId > _productController )){
-        //     let product = new Product( 
-        //       result ? (result[0]).toString() : '',
-        //       result ? (result[1]).toString() : '',
+        // let product = new Product( 
+        //   result ? (result[0]).toString() : '',
+        //   result ? (result[1]).toString() : '',
         //   result ? (result[2]).toString() : '',
         //   result ? (result[3]).toString() : '',
         //   result ? (result[4]).toString() : 0,
         //   result ? (result[5]).toString() : 0, 
-        //   result ? (result[6]).toString() : '')
-        //   console.log("SET_ITEM_DATA:", product.id, JSON.stringify(product));
-        //   localStorage.setItem(product.id, JSON.stringify(product));
-        // }
+        //   result ? (result[6]).toString() : '',
+        //   productId.toString())
+        // console.log("SET_ITEM_DATA:", product.id, JSON.stringify(product));
+        // addItemToLocalStorage(product, "product");
+        // localStorage.setItem(product.id, JSON.stringify(product));
+        
 
       } else {
         console.error("No data found for product ID:", productId);
@@ -472,8 +486,14 @@ function App(): JSX.Element {
   };
 
   const fetchProvenanceData = async () => {
+    console.log("INICIO fetchProvenanceData");
     const result = await contract?.getProvenance(productId);
+    // fetchProductData()
     setProvenanceData(result);
+    console.log("PROVENANCE RESULT", result);
+    console.log("PROVENANCE DATA", provenanceData);
+    setIsTraceabilityModalOpen(true);
+    console.log("isTraceabilityModalOpen", isTraceabilityModalOpen);
   };
 
   const fetchOwnershipData = async () => {
@@ -483,6 +503,7 @@ function App(): JSX.Element {
     }
     try {
       const result = await contract?.getOwnership(ownershipId);
+      if (result && result.length === 4) {
       const [productId, productOwnerId, productOwnerAddress, trxTimeStamp] = result;
 
       // Validar que los valores no sean 0 o la dirección no sea la dirección nula
@@ -490,23 +511,27 @@ function App(): JSX.Element {
 
         setOwnershipData(result);
         let ownership = new Ownership(
-          result ? (result[0]).toString() : '',
-          result ? (result[1]).toString() : '',
-          result ? (result[2]).toString() : '',
-          result ? (result[3]).toString() : '',
+          productId.toString(),
+          productOwnerId.toString(),
+          productOwnerAddress.toString(),
+          trxTimeStamp.toString(),
           ownershipId.toString()
-        )
+        );
         // Validar que ownership no sea vacío
-        if (ownership.id && ownership.productId && ownership.productOwnerId && ownership.productOwnerAddress && ownership.trxTimeStamp) {
+        if (ownership.productId !== 0 && ownership.productOwnerId !== 0 && ownership.productOwnerAddress && ownership.trxTimeStamp) {
           addItemToLocalStorage(ownership, "ownership");
+          // return ownership;
         } else {
           console.error("Invalid ownership data:", ownership);
         }
       } else {
-        console.error("No data found for product ID:", productId);
+        console.error("No data found for ownership ID:", productId);
       }
-    } catch (error) {
-      console.error("Error fetching product data:", error);
+      } else {
+        console.error("No valid data found for ownership ID:", ownershipId);
+      }
+    }catch (error) {
+      console.error("Error fetching ownership data:", error);
     }
     // localStorage.setItem(ownership.id, JSON.stringify(ownership));
   }
@@ -575,12 +600,13 @@ function App(): JSX.Element {
         participantAddress,
         participantId.toString()
       )
-      console.log("participantId.toString():", participantId.toString());
-      console.log("PARTICIPANT:", participant);
-      console.log("addParticipantID - 1:", (parseInt(addParticipantID) - 1).toString());
-      setParticipantData(await contract.getParticipant(participantId));
 
       addItemToLocalStorage(participant, "participant");
+      // console.log("participantId.toString():", participantId.toString());
+      // console.log("PARTICIPANT:", participant);
+      // console.log("addParticipantID - 1:", (parseInt(addParticipantID) - 1).toString());
+      setParticipantData(await contract.getParticipant(participantId));
+      // setParticipantData(participant);
 
       toast("Participant added successfully");
     } catch (error) {
@@ -589,8 +615,8 @@ function App(): JSX.Element {
     } finally {
       setIsLoading(false);
     }
-    console.log("ParticipantAddress", participantAddress);
-    console.log("Adress", address);
+    // console.log("ParticipantAddress", participantAddress);
+    // console.log("Adress", address);
     setName('');
     setPass('');
     setParticipantAddress('');
@@ -613,18 +639,18 @@ function App(): JSX.Element {
         gasLimit: 5000000,
       });
       const receipt = await addProductTx.wait();
-      console.log("Producto añadido con ID ANTES:", addProductTx.toString());
-      console.log("receipt:", receipt);
+      // console.log("Producto añadido con ID ANTES:", addProductTx.toString());
+      // console.log("receipt:", receipt);
 
       // const addProductID = addProductTx.toNumber();
       const addProductID = await contract.product_id(); // Asegúrate de que este método existe y devuelve el último productId
 
-      console.log("Producto añadido con ID DES:", (parseInt(addProductID) - 1).toString());
+      // console.log("Producto añadido con ID DES:", (parseInt(addProductID) - 1).toString());
 
       // const _productData = await contract.getProduct(parseInt(addProductID.toString()))
       const _productData = await contract.getProduct(parseInt(addProductID) - 1);
       // await _productData.wait();
-      console.log("_productData:", _productData);
+      // console.log("_productData:", _productData);
       setProductData(_productData);
 
       let product = new Product(
@@ -633,7 +659,7 @@ function App(): JSX.Element {
         _productData ? (_productData[2]).toString() : '',
         _productData ? (_productData[3]).toString() : '',
         _productData ? parseInt(_productData[4].toString()) : 0,
-        _productData ? new Date(parseInt(_productData[5].toString()) * 1000) : new Date(),
+        _productData ? _productData[5]: 0,
         _productData ? (_productData[6]).toString() : '',
         (parseInt(addProductID) - 1).toString())
       console.log("SET_ITEM_DATA:", product.id, JSON.stringify(product));
@@ -649,15 +675,15 @@ function App(): JSX.Element {
     } finally {
       setIsLoading(false);
     }
-    console.log("ParticipantAddress", participantAddress);
-    console.log("Adress", address);
+    // console.log("ParticipantAddress", participantAddress);
+    // console.log("Adress", address);
     setOwnerId(0);
     setModelNumber('');
     setSerialNumber('');
     setProductCost(0);
     // console.log("Adress", address);
   };
-  console.log("Product Data", productData);
+  // console.log("Product Data", productData);
 
   const newOwner = async () => {
     try {
@@ -669,14 +695,36 @@ function App(): JSX.Element {
       if (!contract) {
         throw new Error("Contract not found");
       }
-
+      
+      const _ownershipId = await contract.owner_id();
       const newOwnerTx = await contract.newOwner(address, hash, signature, user1, user2, theProductId, {
         gasLimit: 5000000,
       });
       await newOwnerTx.wait();
+      if(newOwnerTx){
 
-      setOwnershipData(await contract.getOwnership(ownershipId));
-
+        // setOwnershipId(parseInt(_ownershipId.toString()));
+        console.log("___OwnershipId", _ownershipId.toString());
+      const result = await contract.getOwnership(parseInt(_ownershipId.toString()));
+      // fetchOwnershipData();
+      const [productId, productOwnerId, productOwnerAddress, trxTimeStamp] = result;
+      
+      
+      // setOwnershipData(ownership);
+      // setOwnershipData(await contract.getOwnership(ownershipId));
+      let ownership = new Ownership(
+        parseInt(productId.toString()),
+        parseInt(productOwnerId.toString()),
+        productOwnerAddress.toString(),
+        trxTimeStamp,
+        _ownershipId.toString()
+      );
+      // // Validar que ownership no sea vacío
+      if (ownership.productId !== 0 && ownership.productOwnerId !== 0 && ownership.productOwnerAddress && ownership.trxTimeStamp) {
+        console.log("FECHA,etc", ownership.trxTimeStamp, ownership.productId, ownership.productOwnerAddress, ownership.productOwnerId, ownership.id);
+        addItemToLocalStorage(ownership, "ownership");
+      }
+    }
       toast('Product transfered successfully')
     } catch (error) {
       console.error(error);
@@ -684,8 +732,8 @@ function App(): JSX.Element {
     } finally {
       setIsLoading(false);
     }
-    console.log("ParticipantAddress", participantAddress);
-    console.log("Adress", address);
+    // console.log("ParticipantAddress", participantAddress);
+    // console.log("Adress", address);
     setUser1(0);
     setUser2(0);
     setTheProductId(0);
@@ -735,7 +783,17 @@ function App(): JSX.Element {
 
   return (
     // <div className="flex flex-col items-center p-4">
-    <div id="container" className="flex flex-col flex-center m-auto bg-orange-50 text-stone-800 bg-[url('../public/logistica_app.png')]  bg-no-repeat bg-center bg-contain">
+    <div id="container" className="flex flex-col flex-center m-auto bg-orange-50 text-stone-800 bg-[url('../public/logistica_app.png')]  bg-no-repeat bg-center bg-contain" 
+    // style={{backgroundColor: '#212529'}} >
+    >
+    {/*COLORES: #818a91 gris /#007bff azul mas claro 
+    #0069d9 azul medio #6c757d gris mas oscuro #5a6268 gris aun mas oscuro
+    #28a745 verde #218838 verde mas oscuro #17a2b8 turquesa?
+    #138496 turquesa mas claro #ffc107 naranja #e0a800 naranja mas oscuro
+    #dc3545 rojo #c82333 rojo mas oscuro #343a40 grafito #23272b grafito mas oscuro
+    #212529 casi negro(letra) #f8f9fa casi blanco #e2e6ea casi blanco mas apagado
+    /#ffffff #000000*   extraer de aqui; https://exitflow.cl/wp-content/plugins/pagelayer-pro/css/givecss.php?give=pagelayer-frontend.css%2Cnivo-lightbox.css%2Canimate.min.css%2Cowl.carousel.min.css%2Cowl.theme.default.min.css%2Cfont-awesome5.min.css&premium=%2Cpremium-frontend.css&ver=1.8.5 */}
+    
       <div className="flex flex-col justify-between m-auto w-2/3 border-2 border-stone-800 rounded-md">
 
         {/* // <div id="container" className="flex flex-col flex-center m-auto bg-orange-50 text-stone-800  bg-no-repeat bg-center bg-contain"> */}
@@ -807,6 +865,9 @@ function App(): JSX.Element {
               fetchOwnershipData={fetchOwnershipData}
               fetchParticipantData={fetchParticipantData}
             />
+             {/* <button onClick={() => showTraceability(1)}>Mostrar Trazabilidad</button> */}
+             {/* <ProductModal product={product} isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} /> */}
+             <TraceabilityModal ids={provenanceData} isTraceabilityModalOpen={isTraceabilityModalOpen} productId={productId} productData={productData} provenanceData={provenanceData} onRequestClose={() => setIsTraceabilityModalOpen(false)} />
           </div>
         )}
         {/* <p className="mt-4">ProductId: {actualProductId}</p>

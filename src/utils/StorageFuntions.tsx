@@ -4,8 +4,12 @@ export const initializeExistingPrefixes = () => {
     types.forEach(type => {
       const storedIds: string[] = JSON.parse(localStorage.getItem(`${type}Ids`) || "[]");
       storedIds.forEach(id => {
-        const prefix = id.split("-").slice(0, 2).join("-");
-        existingPrefixes[type].add(prefix);
+        const parts = id.split("-");
+        if (parts.length > 2) {
+          // Crea el prefijo con los primeros dos segmentos y un delimitador extra
+          const prefix = `${parts.slice(0, 2).join("-")}-`;
+          existingPrefixes[type].add(prefix);
+        }
       });
     });
   };
@@ -59,7 +63,7 @@ type StorableObject = {
   
     const itemIds: Set<string> = new Set(JSON.parse(localStorage.getItem(itemsArrayKey) || "[]"));
     // Dividir el itemKey para obtener el prefijo base (ej. product-3)
-    const itemPrefix = itemKey.split("-").slice(0, 2).join("-"); // Ej: product-3
+    const itemPrefix = itemKey.split("-").slice(0, 2).join("-") + "-"; // Ej: product-3-
   
     // Verificar si ya existe un prefijo con el mismo prefijo
     if (existingPrefixes[itemType].has(itemPrefix)) {
