@@ -47,7 +47,7 @@ type Ownership = {
         const allOwnershipIds: string[] = JSON.parse(localStorage.getItem('ownershipIds') || '[]');
         const allParticipantsIds: string[] = JSON.parse(localStorage.getItem('participantIds') || '[]');
         
-        const filteredIds = allOwnershipIds.filter(id => ids.some(num => id.startsWith(`ownership-${num}-`)));
+        const filteredIds = allOwnershipIds.filter(id => ids?.some(num => id.startsWith(`ownership-${num}-`)));
         
         const fetchedOwnerships = filteredIds.map(id => {
           const ownershipData = localStorage.getItem(id);

@@ -23,48 +23,73 @@ import React from 'react';
 //   participantAddress: string
 // }
 
+
 interface ProductEntryProps {
+  provider: any;
+  contract: any;
+  address: string;
   name: string;
   pass: string;
   participantAddress: any;
   participantType: string;
   modelNumber: string;
   serialNumber: string;
+  partNumber: string;
   productCost :number;
   isLoading: boolean;
   user1: number;
   user2: number;
   theProductId: number;
   ownerId: number,
-  setName: React.Dispatch<React.SetStateAction<string | ''>>; // Ajuste para el tipo correcto
-  setPass: React.Dispatch<React.SetStateAction<string| ''>>; // Ajuste para el tipo correcto
-  setParticipantAddress: React.Dispatch<React.SetStateAction<any | ''>>; // Ajuste para el tipo correcto
-  setParticipantType: React.Dispatch<React.SetStateAction<string | ''>>; // Corrección en el nombre y ajuste para el tipo correcto
-  setOwnerId: React.Dispatch<React.SetStateAction<number>>; // Ajuste para el tipo correcto
-  setModelNumber: React.Dispatch<React.SetStateAction<string | ''>>; // Corrección en el nombre y ajuste para el tipo correcto
-  setSerialNumber: React.Dispatch<React.SetStateAction<string | ''>>; // Corrección en el nombre y ajuste para el tipo correcto
-  setProductCost: React.Dispatch<React.SetStateAction<number>>; // Corrección en el nombre y ajuste para el tipo correcto
-  setUser1: React.Dispatch<React.SetStateAction<number>>; // Corrección en el nombre y ajuste para el tipo correcto
-  setUser2: React.Dispatch<React.SetStateAction<number>>; // Corrección en el nombre y ajuste para el tipo correcto
-  setTheProductId: React.Dispatch<React.SetStateAction<number>>; // Corrección en el nombre y ajuste para el tipo correcto
-  addParticipant: React.Dispatch<React.SetStateAction<any | undefined>>;
-  addProduct: React.Dispatch<React.SetStateAction<any | undefined>>;
-  newOwner: React.Dispatch<React.SetStateAction<any | undefined>>;
+  setParticipantData: React.Dispatch<React.SetStateAction<any[] | undefined>>;
+  setProductData: React.Dispatch<React.SetStateAction<any[] | undefined>>;
+  setName: React.Dispatch<React.SetStateAction<string | ''>>; 
+  setPass: React.Dispatch<React.SetStateAction<string| ''>>; 
+  setParticipantAddress: React.Dispatch<React.SetStateAction<any | ''>>; 
+  setParticipantType: React.Dispatch<React.SetStateAction<string | ''>>; 
+  setOwnerId: React.Dispatch<React.SetStateAction<number>>; 
+  setModelNumber: React.Dispatch<React.SetStateAction<string | ''>>; 
+  setSerialNumber: React.Dispatch<React.SetStateAction<string | ''>>; 
+  setProductCost: React.Dispatch<React.SetStateAction<number>>;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>; 
+  setUser1: React.Dispatch<React.SetStateAction<number>>; 
+  setUser2: React.Dispatch<React.SetStateAction<number>>; 
+  setTheProductId: React.Dispatch<React.SetStateAction<number>>; 
+  addParticipant: (provider: any, contract: any, address: string, name: string, pass: string, 
+    participantType:string, participantAddress: string, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setParticipantData: React.Dispatch<React.SetStateAction<any[] | undefined>>,setName: React.Dispatch<React.SetStateAction<string>>,
+    setPass: React.Dispatch<React.SetStateAction<string>>,setParticipantAddress: React.Dispatch<React.SetStateAction<string>>,
+    setParticipantType: React.Dispatch<React.SetStateAction<string>>) => void;
+  addProduct: (provider: any, contract: any, address: string, ownerId: number, modelNumber: string, partNumber: string, 
+    serialNumber: string, productCost: number, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>, 
+    setProductData: React.Dispatch<React.SetStateAction<any[] | undefined>>, 
+    setOwnerId: React.Dispatch<React.SetStateAction<number>>,  setModelNumber: React.Dispatch<React.SetStateAction<string>>,
+    setSerialNumber: React.Dispatch<React.SetStateAction<string>>, setProductCost: React.Dispatch<React.SetStateAction<number>>
+  ) => void;
+  newOwner: (provider: any, contract: any, address: string, user1: number, user2: number, theProductId: number, 
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,setUser1: React.Dispatch<React.SetStateAction<number>>,
+    setUser2: React.Dispatch<React.SetStateAction<number>>,setTheProductId: React.Dispatch<React.SetStateAction<number>>,
+  ) => void;
 }
-
 const DataEntry: React.FC<ProductEntryProps> = ({
+  provider, 
+  contract,
+  address,
   name,
   pass,
   participantAddress,
   participantType,
-  ownerId,
   modelNumber,
   serialNumber,
+  partNumber,
   productCost,
   isLoading,
   user1,
   user2,
   theProductId,
+  ownerId,
+  setParticipantData,
+  setProductData,
   setName,
   setPass,
   setParticipantAddress,
@@ -73,6 +98,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
   setModelNumber,
   setSerialNumber,
   setProductCost,
+  setIsLoading,
   setUser1,
   setUser2,
   setTheProductId,
@@ -81,7 +107,60 @@ const DataEntry: React.FC<ProductEntryProps> = ({
   newOwner
   // fetchOwnershipData,
   // fetchParticipantData
-}) => {  return (
+}) => {
+  const handleAddParticipant = async () => {
+    await addParticipant(
+      provider, // Asegúrate de que `provider` está definido o es pasado como prop
+      contract, // Asegúrate de que `contract` está definido o es pasado como prop
+      address, // Asegúrate de que `address` está definido o es pasado como prop
+      name,
+      pass,
+      participantType,
+      participantAddress,
+      setIsLoading,
+      setParticipantData,
+      setName,
+      setPass,
+      setParticipantAddress,
+      setParticipantType
+    );
+  };
+
+  const handleAddProduct = async () => {
+    await addProduct(
+      provider, 
+      contract, 
+      address, 
+      ownerId,
+      modelNumber,
+      partNumber,
+      serialNumber,
+      productCost,
+      setIsLoading,
+      setProductData,
+      setOwnerId,
+      setModelNumber,
+      setSerialNumber,
+      setProductCost
+    );
+  };
+
+  const handleNewOwner = async () => {
+    await newOwner(
+      provider, // Asegúrate de que `provider` está definido o es pasado como prop
+      contract, // Asegúrate de que `contract` está definido o es pasado como prop
+      address, // Asegúrate de que `address` está definido o es pasado como prop
+      user1,
+      user2,
+      theProductId,
+      setIsLoading,
+      setUser1,
+      setUser2,
+      setTheProductId
+    );
+  };
+
+  return (
 
 // const ProductEntry = ({ name, pass, participantAddress, participantType, ownerId, modelNumber, serialNumber, productCost, user1, user2, theProductId, setName, setPass, setParticipantAddress, setParticipantType,setOwnerId, setModelNumber, setSerialNumber, setProductCost, setUser1, setUser2, setTheProductId }) => {
 // }) => {  return (
@@ -154,7 +233,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
         <div className="content-end">
         <button
           className="py-1 px-3 h-12 w-56 mt-4 bg-orange-500 text-stone-800 border-2 border-stone-800 rounded-md hover:bg-orange-400 transition-all disabled:opacity-80 text-xl"
-          onClick={addParticipant}
+          onClick={handleAddParticipant}
           disabled={isLoading || !name || !pass || !participantAddress || !participantType}
         >
           {isLoading ? 'Añadiendo proveedor...' : '📤 Añadir proveedor'}
@@ -222,7 +301,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
         <div>
         <button
           className="py-1 px-3 h-12 w-56 mt-6 bg-orange-500 text-stone-800 border-2 border-stone-800 rounded-md hover:bg-orange-400 transition-all disabled:opacity-80 text-xl"
-          onClick={addProduct}
+          onClick={handleAddProduct}
           disabled={isLoading || !ownerId || !modelNumber || !serialNumber || !productCost}
           >
           {isLoading ? 'Añadiendo producto...' : '📤 Añadir producto'}
@@ -275,7 +354,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
 
         <button
           className="w-56 h-12 mt-6 bg-orange-500 text-stone-800 border-2 border-stone-800 rounded-md hover:bg-orange-400 transition-all disabled:opacity-80 text-xl"
-          onClick={newOwner}
+          onClick={handleNewOwner}
           disabled={isLoading || !user1 || !user2 || !theProductId}
           >
           {isLoading ? 'Moviendo el producto...' : '📤 Mover el producto'}

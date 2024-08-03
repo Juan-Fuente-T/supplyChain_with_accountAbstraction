@@ -175,4 +175,28 @@ type StorableObject = {
     // return formattedDate;
   
 
+    // function recoverProduct(productId: number) {
+    //   //  for (let i = 0; i < localStorage.length; i++) {
+    //   //     // console.log(localStorage.getItem(localStorage.key(i)))
+    //   //     let taskObj = JSON.parse(localStorage.getItem(localStorage.key(i)));
+    //   //     // console.log(createRecoveredTaskFromLocalStorage(taskObj));
+    //   //     let taskHTML = createRecoveredTaskFromLocalStorage(taskObj);
+    //   //     if((taskObj.id).includes("task-")){
+    //   //         if (taskObj.taskDone) {
+    //   //             taskDivContainerDone.appendChild(taskHTML);
+    //   //         } else {
+    //   //             taskDivContainer.appendChild(taskHTML);
+    //   //         }           
+    //   //     }
+    //   // }
+    //   if (productId) {
+    //     let productKey = productId.toString();
+    //     let product = localStorage.getItem(productKey);
   
+    //     if (product) {
+    //       let productObj = JSON.parse(product);
+    //       console.log("RECOVERED Product: ", productObj);
+    //       return productObj;
+    //     }
+    //   }
+    // }

@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import ProductModal from './components/ProductModal';
 import  formatDate  from  './utils/FormatDate';
 import TraceabilityModal from './components/TraceabilityModal';
+import { addParticipant, addProduct, newOwner } from './utils/NewItemsFunctions';
+import { uiConsole } from './utils/SignMessageFunction';
+
+import { Participant, Product, Ownership } from './utils/Types';
 
 import Web3 from "web3";
 import { Web3Auth } from "@web3auth/modal";
@@ -73,68 +77,6 @@ const web3auth = new Web3Auth({
 // };
 initializeExistingPrefixes();
 
-class Participant {
-  id: string;
-  name: string;
-  // pass: string;
-  participantType: string;
-  participantAddress: string;
-
-  // constructor(name: string, pass: string, participantType: string, participantAddress: string) {
-  constructor(name: string, participantType: string, participantAddress: string, participantId: string) {
-    this.name = name;
-    // this.pass = pass;
-    this.participantType = participantType;
-    this.participantAddress = participantAddress;
-    this.id = `participant-${participantId}-` + crypto.randomUUID(); // Asegúrate de que crypto.randomUUID() esté disponible en tu entorno
-    console.log("Datos Participant: ", this.name, this.participantType, this.participantAddress, this.id);
-  }
-}
-class Product {
-  id: string;
-  // ownerId :number | undefined;
-  modelNumber: string;
-  serialNumber: string;
-  participantName: string;
-  participantType: string;
-  productCost: number | undefined;
-  // mfgTimeStamp: Date | undefined;
-  mfgTimeStamp: string;
-  participantAddress: string;
-
-  // constructor(ownerId: number, modelNumber: string, serialNumber: string, participantName: string, participantType: string, productCost: number, mfgTimeStamp: Date, participantAddress: string) {
-  constructor(modelNumber: string, serialNumber: string, participantName: string, participantType: string, productCost: number, _mfgTimeStamp: bigint, participantAddress: string, addProductID: string) {
-    // this.ownerId = ownerId;
-    this.modelNumber = modelNumber;
-    this.serialNumber = serialNumber;
-    this.participantName = participantName;
-    this.participantType = participantType;
-    this.productCost = productCost;
-    // this.mfgTimeStamp = mfgTimeStamp;
-    this.mfgTimeStamp = formatDate(_mfgTimeStamp );
-    this.participantAddress = participantAddress;
-    this.id = `product-${addProductID}-` + crypto.randomUUID(); // Asegúrate de que crypto.randomUUID() esté disponible en tu entorno
-    console.log("Datos Producto: ", modelNumber, serialNumber, productCost, this.id);
-  }
-}
-class Ownership {
-  id: string;
-  productId: number;
-  productOwnerId: number;
-  // pass: string;
-  productOwnerAddress: string;
-  trxTimeStamp: string;
-
-  // constructor(name: string, pass: string, participantType: string, participantAddress: string) {
-  constructor(productId: number, productOwnerId: number, productOwnerAddress: string, _trxTimeStamp: bigint, ownershipId: string) {
-    this.productId = productId;
-    this.productOwnerId = productOwnerId;
-    this.productOwnerAddress = productOwnerAddress;
-    this.trxTimeStamp = formatDate(_trxTimeStamp);
-    this.id = `ownership-${ownershipId}-` + crypto.randomUUID(); // Asegúrate de que crypto.randomUUID() esté disponible en tu entorno
-    console.log("Datos Ownership: ", productId, productOwnerId, productOwnerAddress, this.trxTimeStamp, this.id);
-  }
-}
 
 // const addProductToLocalStorage = (product: Product, productId: string) => {
 //   console.log("ProductId en addProductToLocalStorage", productId);
@@ -172,15 +114,6 @@ class Ownership {
 // Inicializar los conjuntos de prefijos existentes al cargar la aplicación
 
 
-function handleClick(itemId: number, itemType: string) {
-  if (itemType === "product") {
-    findItemsByInitialNumbers([itemId], "product"); // Llama a tu función
-  } else if (itemType === "participant") {
-    findItemsByInitialNumbers([itemId], "participant"); // Llama a tu función
-  } else {
-    findItemsByInitialNumbers([itemId], "ownership"); // Llama a tu función
-  }
-}
 // IMP END - SDK Initialization
 function App(): JSX.Element {
   // const { address, isConnected } = useAccount();
@@ -326,13 +259,6 @@ function App(): JSX.Element {
     }
   };
 
-  const getUserInfo = async () => {
-    // IMP START - Get User Information
-    const user: Partial<UserInfo> = await web3auth.getUserInfo();
-
-    uiConsole(user);
-  };
-
   const logout = async () => {
     await web3auth.logout();
     setProvider(null);
@@ -340,52 +266,27 @@ function App(): JSX.Element {
     uiConsole("logged out");
   };
 
+  // const getUserInfo = async () => {
+  //   // IMP START - Get User Information
+  //   const user: Partial<UserInfo> = await web3auth.getUserInfo();
 
-  const getAccounts = async () => {
-    if (!provider) {
-      uiConsole("provider not initialized yet");
-      return;
-    }
-    const web3 = new Web3(provider as any);
+  //   uiConsole(user);
+  // };  
 
-    // Get user's Ethereum public address
-    const address = await web3.eth.getAccounts();
-    uiConsole(address);
-  };
 
-  function uiConsole(...args: any[]): void {
-    const el = document.querySelector("#console>p");
-    if (el) {
-      el.innerHTML = JSON.stringify(args || {}, null, 2);
-    }
-    console.log(...args);
-  }
+  // const getAccounts = async () => {
+  //   if (!provider) {
+  //     uiConsole("provider not initialized yet");
+  //     return;
+  //   }
+  //   const web3 = new Web3(provider as any);
 
-  const signMessage = async (message: string) => {
-    if (!provider) {
-      uiConsole("provider not initialized yet");
-      return;
-    }
-    const web3 = new Web3(provider as any);
+  //   // Get user's Ethereum public address
+  //   const address = await web3.eth.getAccounts();
+  //   uiConsole(address);
+  // };
 
-    // Get user's Ethereum public address
-    const fromAddress = (await web3.eth.getAccounts())[0];
-
-    // Sign the message
-    const signedMessage = await web3.eth.personal.sign(
-      message,
-      fromAddress,
-      "test password!" // configure your own password here.
-    );
-    // uiConsole(signedMessage);
-
-    if (!signedMessage) {
-      throw new Error("Failed to sign message");
-    }
-
-    return signedMessage;
-  };
-
+ 
   //   const { data: actualOwnerId, refetch: refetchActualOwnerId } = useReadContract({
   //   abi,
   //   address: CONTRACT_ADDRESS,
@@ -441,16 +342,7 @@ function App(): JSX.Element {
     }
   };
 
-  // const fetchProductData = async () => {
-  //   const result = await contract?.getProduct(productId);
-  //   console.log("PRODUCT DATA", result.data);
-  //   setProductData(result.data);
-  // };
-
-  // const fetchProductData = async (addProductID: string) => {
   const fetchProductData = async () => {
-    // let productController = 0;
-    // localStorage.setItem(productController.toString());
     if (!contract) {
       console.error("Contract is not initialized");
       return;
@@ -535,32 +427,16 @@ function App(): JSX.Element {
     }
     // localStorage.setItem(ownership.id, JSON.stringify(ownership));
   }
-
-  function recoverProduct(productId: number) {
-    //  for (let i = 0; i < localStorage.length; i++) {
-    //     // console.log(localStorage.getItem(localStorage.key(i)))
-    //     let taskObj = JSON.parse(localStorage.getItem(localStorage.key(i)));
-    //     // console.log(createRecoveredTaskFromLocalStorage(taskObj));
-    //     let taskHTML = createRecoveredTaskFromLocalStorage(taskObj);
-    //     if((taskObj.id).includes("task-")){
-    //         if (taskObj.taskDone) {
-    //             taskDivContainerDone.appendChild(taskHTML);
-    //         } else {
-    //             taskDivContainer.appendChild(taskHTML);
-    //         }           
-    //     }
-    // }
-    if (productId) {
-      let productKey = productId.toString();
-      let product = localStorage.getItem(productKey);
-
-      if (product) {
-        let productObj = JSON.parse(product);
-        console.log("RECOVERED Product: ", productObj);
-        return productObj;
-      }
+  function handleClick(itemId: number, itemType: string) {
+    if (itemType === "product") {
+      findItemsByInitialNumbers([itemId], "product"); // Llama a tu función
+    } else if (itemType === "participant") {
+      findItemsByInitialNumbers([itemId], "participant"); // Llama a tu función
+    } else {
+      findItemsByInitialNumbers([itemId], "ownership"); // Llama a tu función
     }
   }
+
   // const fetchActualOwnerIdData = async () => {
   //   const result = await contract?.owner_id();
   //   setActualOwnerIdData(result.data);
@@ -574,170 +450,7 @@ function App(): JSX.Element {
   //   setActualProductId(result.data);
   // };
 
-  const addParticipant = async () => {
-    try {
-      setIsLoading(true);
-      const message = "Hola, TraZableDLT pagará el gas por ti";
-      const hash = hashMessage(message);
-      // console.log("HASH", hash);
-      const signature = await signMessage(message);
-      // console.log("SIGNATURE", signature);
-
-      if (!contract) {
-        throw new Error("Contract not found");
-      }
-
-      const addParticipantTx = await contract.addParticipant(address, hash, signature, name, pass, participantType, participantAddress, {
-        gasLimit: 5000000,
-      });
-      await addParticipantTx.wait();
-
-      const addParticipantID = await contract.participant_id(); // Asegúrate de que este método existe y devuelve el último productId
-
-      let participant = new Participant(
-        name,
-        participantType,
-        participantAddress,
-        participantId.toString()
-      )
-
-      addItemToLocalStorage(participant, "participant");
-      // console.log("participantId.toString():", participantId.toString());
-      // console.log("PARTICIPANT:", participant);
-      // console.log("addParticipantID - 1:", (parseInt(addParticipantID) - 1).toString());
-      setParticipantData(await contract.getParticipant(participantId));
-      // setParticipantData(participant);
-
-      toast("Participant added successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error('Error while adding participant. Try again.')
-    } finally {
-      setIsLoading(false);
-    }
-    // console.log("ParticipantAddress", participantAddress);
-    // console.log("Adress", address);
-    setName('');
-    setPass('');
-    setParticipantAddress('');
-    setParticipantType('');
-    setIsLoading(true)
-  };
-  //Solo podria dar de alta un producto el manufacturer conectado
-  const addProduct = async () => {
-    try {
-      setIsLoading(true);
-      const message = "Hola, TraZableDLT pagará el gas por ti";
-      const hash = hashMessage(message);
-      const signature = await signMessage(message);
-
-      if (!contract) {
-        throw new Error("Contract not found");
-      }
-
-      const addProductTx = await contract.addProduct(address, hash, signature, ownerId, modelNumber, partNumber, serialNumber, productCost, {
-        gasLimit: 5000000,
-      });
-      const receipt = await addProductTx.wait();
-      // console.log("Producto añadido con ID ANTES:", addProductTx.toString());
-      // console.log("receipt:", receipt);
-
-      // const addProductID = addProductTx.toNumber();
-      const addProductID = await contract.product_id(); // Asegúrate de que este método existe y devuelve el último productId
-
-      // console.log("Producto añadido con ID DES:", (parseInt(addProductID) - 1).toString());
-
-      // const _productData = await contract.getProduct(parseInt(addProductID.toString()))
-      const _productData = await contract.getProduct(parseInt(addProductID) - 1);
-      // await _productData.wait();
-      // console.log("_productData:", _productData);
-      setProductData(_productData);
-
-      let product = new Product(
-        _productData ? (_productData[0]).toString() : '',
-        _productData ? (_productData[1]).toString() : '',
-        _productData ? (_productData[2]).toString() : '',
-        _productData ? (_productData[3]).toString() : '',
-        _productData ? parseInt(_productData[4].toString()) : 0,
-        _productData ? _productData[5]: 0,
-        _productData ? (_productData[6]).toString() : '',
-        (parseInt(addProductID) - 1).toString())
-      console.log("SET_ITEM_DATA:", product.id, JSON.stringify(product));
-      // localStorage.setItem(product.id, JSON.stringify(product));
-      // addProductToLocalStorage(product, productId.toString());
-      addItemToLocalStorage(product, "product");
-      // fetchProductData(addProductID.toString());
-
-      toast("Product added successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error('Error while adding product. Try again.')
-    } finally {
-      setIsLoading(false);
-    }
-    // console.log("ParticipantAddress", participantAddress);
-    // console.log("Adress", address);
-    setOwnerId(0);
-    setModelNumber('');
-    setSerialNumber('');
-    setProductCost(0);
-    // console.log("Adress", address);
-  };
-  // console.log("Product Data", productData);
-
-  const newOwner = async () => {
-    try {
-      setIsLoading(true);
-      const message = "Hola, TraZableDLT pagará el gas por ti";
-      const hash = hashMessage(message);
-      const signature = await signMessage(message);
-
-      if (!contract) {
-        throw new Error("Contract not found");
-      }
-      
-      const _ownershipId = await contract.owner_id();
-      const newOwnerTx = await contract.newOwner(address, hash, signature, user1, user2, theProductId, {
-        gasLimit: 5000000,
-      });
-      await newOwnerTx.wait();
-      if(newOwnerTx){
-
-        // setOwnershipId(parseInt(_ownershipId.toString()));
-        console.log("___OwnershipId", _ownershipId.toString());
-      const result = await contract.getOwnership(parseInt(_ownershipId.toString()));
-      // fetchOwnershipData();
-      const [productId, productOwnerId, productOwnerAddress, trxTimeStamp] = result;
-      
-      
-      // setOwnershipData(ownership);
-      // setOwnershipData(await contract.getOwnership(ownershipId));
-      let ownership = new Ownership(
-        parseInt(productId.toString()),
-        parseInt(productOwnerId.toString()),
-        productOwnerAddress.toString(),
-        trxTimeStamp,
-        _ownershipId.toString()
-      );
-      // // Validar que ownership no sea vacío
-      if (ownership.productId !== 0 && ownership.productOwnerId !== 0 && ownership.productOwnerAddress && ownership.trxTimeStamp) {
-        console.log("FECHA,etc", ownership.trxTimeStamp, ownership.productId, ownership.productOwnerAddress, ownership.productOwnerId, ownership.id);
-        addItemToLocalStorage(ownership, "ownership");
-      }
-    }
-      toast('Product transfered successfully')
-    } catch (error) {
-      console.error(error);
-      toast.error('Error while transfering product. Try again.')
-    } finally {
-      setIsLoading(false);
-    }
-    // console.log("ParticipantAddress", participantAddress);
-    // console.log("Adress", address);
-    setUser1(0);
-    setUser2(0);
-    setTheProductId(0);
-  };
+  
 
   const unloggedInView = (
     // <button onClick={login} className="card">
@@ -783,10 +496,11 @@ function App(): JSX.Element {
 
   return (
     // <div className="flex flex-col items-center p-4">
-    <div id="container" className="flex flex-col flex-center m-auto bg-orange-50 text-stone-800 bg-[url('../public/logistica_app.png')]  bg-no-repeat bg-center bg-contain" 
-    // style={{backgroundColor: '#212529'}} >
-    >
-    {/*COLORES: #818a91 gris /#007bff azul mas claro 
+    <div id="container" className="flex flex-col flex-center m-auto bg-orange-50 text-stone-100 bg-[url('../public/logistica_app.png')]  bg-no-repeat bg-center bg-contain" 
+    // style={{backgroundColor: '#292d67'}} >
+    > 
+    {/*COLORES:#292d67 azul grisaceo web
+     #818a91 gris /#007bff azul mas claro 
     #0069d9 azul medio #6c757d gris mas oscuro #5a6268 gris aun mas oscuro
     #28a745 verde #218838 verde mas oscuro #17a2b8 turquesa?
     #138496 turquesa mas claro #ffc107 naranja #e0a800 naranja mas oscuro
@@ -802,9 +516,9 @@ function App(): JSX.Element {
         {loggedIn && (
           <div className="flex flex-col items-center rounded-md">
             {/* <button onClick={recoverProduct(productId)}>RECUPERAR</button> */}
-            <button onClick={() => handleClick(productId, "product")}>RECUPERAR</button>
+            {/* <button onClick={() => handleClick(productId, "product")}>RECUPERAR</button>
             <button onClick={() => handleClick(participantId, "participant")}>PART</button>
-            <button onClick={() => handleClick(ownershipId, "ownership")}>OWNER</button>
+            <button onClick={() => handleClick(ownershipId, "ownership")}>OWNER</button> */}
             <div className="flex flex-row gap-5 w-full justify-center items-center">
               <img src={user?.profileImage} alt="TraZableDLT" />
               <div className="flex flex-row gap-3 items-left">
@@ -817,17 +531,24 @@ function App(): JSX.Element {
               </div>
             </div>
             <DataEntry
+              provider={provider}
+              contract={contract}
+              address={address}
               name={name}
               pass={pass}
               participantAddress={participantAddress}
               participantType={participantType}
-              ownerId={ownerId}
               modelNumber={modelNumber}
               serialNumber={serialNumber}
+              partNumber={partNumber}
               productCost={productCost}
               user1={user1}
               user2={user2}
               theProductId={theProductId}
+              ownerId={ownerId}
+              isLoading={isLoading}
+              setParticipantData={participantData}
+              setProductData={productData}
               setName={setName}
               setPass={setPass}
               setParticipantAddress={setParticipantAddress}
@@ -836,13 +557,14 @@ function App(): JSX.Element {
               setModelNumber={setModelNumber}
               setSerialNumber={setSerialNumber}
               setProductCost={setProductCost}
+              setIsLoading={setIsLoading}
               setUser1={setUser1}
               setUser2={setUser2}
               setTheProductId={setTheProductId}
+              // addParticipant={addParticipant}
               addParticipant={addParticipant}
               addProduct={addProduct}
               newOwner={newOwner}
-              isLoading={isLoading}
             // fetchParticipantData={fetchParticipantData}
             />
             <DataProvider
@@ -873,6 +595,7 @@ function App(): JSX.Element {
         {/* <p className="mt-4">ProductId: {actualProductId}</p>
     <p className="mt-4">ParticipantId: {actualParticipantId}</p> */}
       </div>
+     
     </div>
   );
 
