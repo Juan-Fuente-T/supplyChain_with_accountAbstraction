@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react';
+//https://www.linkedin.com/posts/pablockchain_productmanager-activity-7225404645286768640-6z8o?utm_source=share&utm_medium=member_desktop
+import { SetStateAction, useEffect, useState } from 'react';
+import { useUserContext } from './contexts/UserContext';
 import ProductModal from './components/ProductModal';
-import  formatDate  from  './utils/FormatDate';
+import ParticipantModal from './components/ParticipantModal';
 import TraceabilityModal from './components/TraceabilityModal';
+import NewOwnerModal from './components/NewOwnerModal';
 import { addParticipant, addProduct, newOwner } from './utils/NewItemsFunctions';
 import { uiConsole } from './utils/SignMessageFunction';
+
 
 import { Participant, Product, Ownership } from './utils/Types';
 
@@ -18,7 +22,7 @@ import DataProvider from './components/DataProvider';
 import DataEntry from './components/DataEntry';
 import { addItemToLocalStorage, initializeExistingPrefixes, findItemsByInitialNumbers }from './utils/StorageFuntions';
 // import truncateEthAddress from 'truncate-eth-address';
-// import "./App.css";
+import "./App.css";
 import { ToastContainer, toast } from 'react-toastify';
 // import { waitForTransactionReceipt } from 'wagmi/actions';
 // import { config } from './main';
@@ -116,6 +120,7 @@ initializeExistingPrefixes();
 
 // IMP END - SDK Initialization
 function App(): JSX.Element {
+  // const { user1, setUser1, _ownershipId, set_OwnershipId} = useUserContext()
   // const { address, isConnected } = useAccount();
   // const { address } = useAccount();
   const [isLoading, setIsLoading] = useState(false);
@@ -131,7 +136,7 @@ function App(): JSX.Element {
   const [serialNumber, setSerialNumber] = useState('');
   const [productCost, setProductCost] = useState(0);
   const [partNumber, setPartNumber] = useState("0");
-  const [user1, setUser1] = useState(0);
+  // const [user1, setUser1] = useState(0);
   const [user2, setUser2] = useState(0);
   const [theProductId, setTheProductId] = useState(0);
   const [participantId, setParticipantId] = useState(0);//Esta bien como cero???
@@ -155,10 +160,15 @@ function App(): JSX.Element {
   const [contract, setContract] = useState<Contract | null>(null);
 
   const [isTraceabilityModalOpen, setIsTraceabilityModalOpen] = useState(false);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [isParticipantModalOpen, setIsParticipantModalOpen] = useState(false);
+  const [isNewOwnerModalOpen, setIsNewOwnerModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [addedProduct, setAddedProduct] = useState<Product | null>(null);
+  
+  const {theOwnershipId, setTheOwnershipId} = useUserContext();
   // const app = initializeApp(firebaseConfig);
-
+  
   useEffect(() => {
     const init = async () => {
       try {
@@ -204,7 +214,9 @@ function App(): JSX.Element {
             process.env.REACT_APP_WALLET_PRIVATE_KEY || "",
             provider
           );
-
+          
+          console.log("INIT productData", productData);
+          
           const initContract = new Contract(CONTRACT_ADDRESS, abi, signer);
           setContract(initContract);
           // console.log("Contract", initContract);
@@ -352,9 +364,7 @@ function App(): JSX.Element {
       if (result) {
         setProductData(result);
         setParticipant_type(result ? (result[3]).toString() : '');
-        // let mfgTimeStamp = new Date();
-        //   _productController = localStorage.getItem(productController);
-        //   if(parseInt(productId > _productController )){
+       
         // let product = new Product( 
         //   result ? (result[0]).toString() : '',
         //   result ? (result[1]).toString() : '',
@@ -366,9 +376,6 @@ function App(): JSX.Element {
         //   productId.toString())
         // console.log("SET_ITEM_DATA:", product.id, JSON.stringify(product));
         // addItemToLocalStorage(product, "product");
-        // localStorage.setItem(product.id, JSON.stringify(product));
-        
-
       } else {
         console.error("No data found for product ID:", productId);
       }
@@ -403,14 +410,15 @@ function App(): JSX.Element {
 
         setOwnershipData(result);
         let ownership = new Ownership(
-          productId.toString(),
-          productOwnerId.toString(),
+          parseInt(productId.toString()),
+          parseInt(productOwnerId.toString()),
           productOwnerAddress.toString(),
-          trxTimeStamp.toString(),
+          trxTimeStamp,
           ownershipId.toString()
         );
         // Validar que ownership no sea vacío
         if (ownership.productId !== 0 && ownership.productOwnerId !== 0 && ownership.productOwnerAddress && ownership.trxTimeStamp) {
+          console.log("buhhhhhhhhhhhhhhhh", ownership);
           addItemToLocalStorage(ownership, "ownership");
           // return ownership;
         } else {
@@ -496,18 +504,9 @@ function App(): JSX.Element {
 
   return (
     // <div className="flex flex-col items-center p-4">
-    <div id="container" className="flex flex-col flex-center m-auto bg-orange-50 text-stone-100 bg-[url('../public/logistica_app.png')]  bg-no-repeat bg-center bg-contain" 
+    <div id="container" className="flex flex-col flex-center m-auto text-stone-100 bg-[url('../public/logistica_app.png')]  bg-no-repeat bg-center bg-contain" 
     // style={{backgroundColor: '#292d67'}} >
     > 
-    {/*COLORES:#292d67 azul grisaceo web
-     #818a91 gris /#007bff azul mas claro 
-    #0069d9 azul medio #6c757d gris mas oscuro #5a6268 gris aun mas oscuro
-    #28a745 verde #218838 verde mas oscuro #17a2b8 turquesa?
-    #138496 turquesa mas claro #ffc107 naranja #e0a800 naranja mas oscuro
-    #dc3545 rojo #c82333 rojo mas oscuro #343a40 grafito #23272b grafito mas oscuro
-    #212529 casi negro(letra) #f8f9fa casi blanco #e2e6ea casi blanco mas apagado
-    /#ffffff #000000*   extraer de aqui; https://exitflow.cl/wp-content/plugins/pagelayer-pro/css/givecss.php?give=pagelayer-frontend.css%2Cnivo-lightbox.css%2Canimate.min.css%2Cowl.carousel.min.css%2Cowl.theme.default.min.css%2Cfont-awesome5.min.css&premium=%2Cpremium-frontend.css&ver=1.8.5 */}
-    
       <div className="flex flex-col justify-between m-auto w-2/3 border-2 border-stone-800 rounded-md">
 
         {/* // <div id="container" className="flex flex-col flex-center m-auto bg-orange-50 text-stone-800  bg-no-repeat bg-center bg-contain"> */}
@@ -542,13 +541,15 @@ function App(): JSX.Element {
               serialNumber={serialNumber}
               partNumber={partNumber}
               productCost={productCost}
-              user1={user1}
+              theOwnershipId={theOwnershipId}
               user2={user2}
               theProductId={theProductId}
               ownerId={ownerId}
               isLoading={isLoading}
-              setParticipantData={participantData}
-              setProductData={productData}
+              setParticipantData={setParticipantData}
+              setProductData={setProductData}
+              setOwnershipData={setOwnershipData}
+              setProvenanceData={setProvenanceData}
               setName={setName}
               setPass={setPass}
               setParticipantAddress={setParticipantAddress}
@@ -558,14 +559,20 @@ function App(): JSX.Element {
               setSerialNumber={setSerialNumber}
               setProductCost={setProductCost}
               setIsLoading={setIsLoading}
-              setUser1={setUser1}
+              setTheOwnershipId={setTheOwnershipId}
               setUser2={setUser2}
               setTheProductId={setTheProductId}
+              setIsProductModalOpen={setIsProductModalOpen}
+              setIsParticipantModalOpen={setIsParticipantModalOpen}
+              setIsNewOwnerModalOpen={setIsNewOwnerModalOpen}
               // addParticipant={addParticipant}
+              // fetchProvenanceData={fetchProvenanceData}
               addParticipant={addParticipant}
               addProduct={addProduct}
-              newOwner={newOwner}
-            // fetchParticipantData={fetchParticipantData}
+              newOwner={newOwner} user1={0} setUser1={function (value: SetStateAction<number>): void {
+                throw new Error('Function not implemented.');
+              } }            
+              // fetchParticipantData={fetchParticipantData}
             />
             <DataProvider
               productData={productData}
@@ -589,17 +596,21 @@ function App(): JSX.Element {
             />
              {/* <button onClick={() => showTraceability(1)}>Mostrar Trazabilidad</button> */}
              {/* <ProductModal product={product} isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} /> */}
+             {/* <div className="my-8"> */}
              <TraceabilityModal ids={provenanceData} isTraceabilityModalOpen={isTraceabilityModalOpen} productId={productId} productData={productData} provenanceData={provenanceData} onRequestClose={() => setIsTraceabilityModalOpen(false)} />
+             <ProductModal isProductModalOpen={isProductModalOpen} productId={productId} productData={productData} onRequestClose={() => setIsProductModalOpen(false)} />
+             <ParticipantModal isParticipantModalOpen={isParticipantModalOpen} participantId={participantId} participantData={participantData} onRequestClose={() => setIsParticipantModalOpen(false)} />
+             <NewOwnerModal isNewOwnerModalOpen={isNewOwnerModalOpen} ownershipId={ownershipId} ownershipData={ownershipData} onRequestClose={() => setIsNewOwnerModalOpen(false)} />
+             {/* </div> */}
           </div>
         )}
         {/* <p className="mt-4">ProductId: {actualProductId}</p>
     <p className="mt-4">ParticipantId: {actualParticipantId}</p> */}
       </div>
-     
+      
     </div>
   );
 
 
 };
 export default App
-

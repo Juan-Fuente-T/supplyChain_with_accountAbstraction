@@ -32,7 +32,7 @@ type StorableObject = {
     [key: string]: any; // Permitir otras propiedades
   };
   // const addItemToLocalStorage = (object: StorableObject, itemId: string, itemType: string) => {
-    export  const addItemToLocalStorage = (object: StorableObject, itemType: string) => {
+  export  const addItemToLocalStorage = (object: StorableObject, itemType: string) => {
     // console.log("ProductId en addProductToLocalStorage", itemId);
     const itemKey = object.id;
     // let itemKey: string = '';
@@ -62,9 +62,10 @@ type StorableObject = {
     // const partticipantKey = object.id
   
     const itemIds: Set<string> = new Set(JSON.parse(localStorage.getItem(itemsArrayKey) || "[]"));
+    console.log("itemIds", itemIds);
     // Dividir el itemKey para obtener el prefijo base (ej. product-3)
     const itemPrefix = itemKey.split("-").slice(0, 2).join("-") + "-"; // Ej: product-3-
-  
+    console.log("itemPrefix",itemPrefix);
     // Verificar si ya existe un prefijo con el mismo prefijo
     if (existingPrefixes[itemType].has(itemPrefix)) {
       console.log(`${itemType} with prefix ${itemPrefix} already exists!`);
@@ -89,6 +90,10 @@ type StorableObject = {
     console.log("initialNumber en addProductToLocalStorage", initialNumber);
     console.log("productIndex[initialNumber] en addProductToLocalStorage", itemIndex[initialNumber]);
   
+    console.log("Added itemKey:", itemKey);
+    console.log("Updated itemIds:", Array.from(itemIds));
+    console.log("Updated existingPrefixes:", existingPrefixes);
+    console.log("Updated itemIndex:", itemIndex);
     localStorage.setItem(itemsArrayKey, JSON.stringify(Array.from(itemIds))); // Update set with new ID
     localStorage.setItem(itemKey, JSON.stringify(object)); // Store product data 
   

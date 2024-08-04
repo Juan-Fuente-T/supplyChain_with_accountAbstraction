@@ -34,7 +34,7 @@ export class Participant {
       this.participantType = participantType;
       this.productCost = productCost;
       // this.mfgTimeStamp = mfgTimeStamp;
-      this.mfgTimeStamp = formatDate(_mfgTimeStamp );
+      this.mfgTimeStamp = formatDate(_mfgTimeStamp);
       this.participantAddress = participantAddress;
       this.id = `product-${addProductID}-` + crypto.randomUUID(); // Asegúrate de que crypto.randomUUID() esté disponible en tu entorno
       console.log("Datos Producto: ", modelNumber, serialNumber, productCost, this.id);
@@ -45,8 +45,8 @@ export class Participant {
     productId: number;
     productOwnerId: number;
     // pass: string;
-    productOwnerAddress: string;
     trxTimeStamp: string;
+    productOwnerAddress: string;
   
     // constructor(name: string, pass: string, participantType: string, participantAddress: string) {
     constructor(productId: number, productOwnerId: number, productOwnerAddress: string, _trxTimeStamp: bigint, ownershipId: string) {

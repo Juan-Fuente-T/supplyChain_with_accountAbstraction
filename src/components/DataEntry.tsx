@@ -1,4 +1,5 @@
 import React from 'react';
+import { useUserContext } from '../contexts/UserContext';
 // import '../App.css';
 // import './App.css';
 
@@ -41,8 +42,11 @@ interface ProductEntryProps {
   user2: number;
   theProductId: number;
   ownerId: number,
+  theOwnershipId: number,
   setParticipantData: React.Dispatch<React.SetStateAction<any[] | undefined>>;
   setProductData: React.Dispatch<React.SetStateAction<any[] | undefined>>;
+  setOwnershipData: React.Dispatch<React.SetStateAction<any[] | undefined>>;
+  setProvenanceData: React.Dispatch<React.SetStateAction<any[] | undefined>>;
   setName: React.Dispatch<React.SetStateAction<string | ''>>; 
   setPass: React.Dispatch<React.SetStateAction<string| ''>>; 
   setParticipantAddress: React.Dispatch<React.SetStateAction<any | ''>>; 
@@ -54,21 +58,29 @@ interface ProductEntryProps {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>; 
   setUser1: React.Dispatch<React.SetStateAction<number>>; 
   setUser2: React.Dispatch<React.SetStateAction<number>>; 
+  setTheOwnershipId: React.Dispatch<React.SetStateAction<number>>; 
   setTheProductId: React.Dispatch<React.SetStateAction<number>>; 
+  setIsProductModalOpen:React.Dispatch<React.SetStateAction<boolean>>; 
+  setIsParticipantModalOpen:React.Dispatch<React.SetStateAction<boolean>>; 
+  setIsNewOwnerModalOpen:React.Dispatch<React.SetStateAction<boolean>>; 
+  // fetchProvenanceData: () => Promise<void>;
   addParticipant: (provider: any, contract: any, address: string, name: string, pass: string, 
-    participantType:string, participantAddress: string, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setParticipantData: React.Dispatch<React.SetStateAction<any[] | undefined>>,setName: React.Dispatch<React.SetStateAction<string>>,
-    setPass: React.Dispatch<React.SetStateAction<string>>,setParticipantAddress: React.Dispatch<React.SetStateAction<string>>,
-    setParticipantType: React.Dispatch<React.SetStateAction<string>>) => void;
+    participantType:string, participantAddress: string, setIsParticipantModalOpen:React.Dispatch<React.SetStateAction<boolean>>, 
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,setParticipantData: React.Dispatch<React.SetStateAction<any[] | undefined>>,
+    setName: React.Dispatch<React.SetStateAction<string>>,setPass: React.Dispatch<React.SetStateAction<string>>,
+    setParticipantAddress: React.Dispatch<React.SetStateAction<string>>, setParticipantType: React.Dispatch<React.SetStateAction<string>>) => void;
   addProduct: (provider: any, contract: any, address: string, ownerId: number, modelNumber: string, partNumber: string, 
-    serialNumber: string, productCost: number, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>, 
-    setProductData: React.Dispatch<React.SetStateAction<any[] | undefined>>, 
+    serialNumber: string, productCost: number, setIsProductModalOpen:React.Dispatch<React.SetStateAction<boolean>>,
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>, setProductData: React.Dispatch<React.SetStateAction<any[] | undefined>>, 
     setOwnerId: React.Dispatch<React.SetStateAction<number>>,  setModelNumber: React.Dispatch<React.SetStateAction<string>>,
-    setSerialNumber: React.Dispatch<React.SetStateAction<string>>, setProductCost: React.Dispatch<React.SetStateAction<number>>
-  ) => void;
-  newOwner: (provider: any, contract: any, address: string, user1: number, user2: number, theProductId: number, 
-    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,setUser1: React.Dispatch<React.SetStateAction<number>>,
-    setUser2: React.Dispatch<React.SetStateAction<number>>,setTheProductId: React.Dispatch<React.SetStateAction<number>>,
+    setSerialNumber: React.Dispatch<React.SetStateAction<string>>, setProductCost: React.Dispatch<React.SetStateAction<number>>,
+    ) => void;
+  newOwner: (provider: any, contract: any, address: string, user1: number, user2: number, theProductId: number, theOwnershipId: number,
+    setIsNewOwnerModalOpen:React.Dispatch<React.SetStateAction<boolean>>, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>, 
+    setOwnershipData: React.Dispatch<React.SetStateAction<any[] | undefined>>, setProvenanceData: React.Dispatch<React.SetStateAction<any[] | undefined>>,
+    setUser1: React.Dispatch<React.SetStateAction<number>>,setUser2: React.Dispatch<React.SetStateAction<number>>,
+    setTheOwnershipId: React.Dispatch<React.SetStateAction<number>>,setTheProductId: React.Dispatch<React.SetStateAction<number>>, 
+    // fetchProvenanceData: () => Promise<void>
   ) => void;
 }
 const DataEntry: React.FC<ProductEntryProps> = ({
@@ -84,12 +96,14 @@ const DataEntry: React.FC<ProductEntryProps> = ({
   partNumber,
   productCost,
   isLoading,
-  user1,
+  // user1,
   user2,
   theProductId,
   ownerId,
   setParticipantData,
   setProductData,
+  setOwnershipData,
+  setProvenanceData,
   setName,
   setPass,
   setParticipantAddress,
@@ -99,24 +113,30 @@ const DataEntry: React.FC<ProductEntryProps> = ({
   setSerialNumber,
   setProductCost,
   setIsLoading,
-  setUser1,
+  // setUser1,
   setUser2,
   setTheProductId,
+  setIsProductModalOpen,
+  setIsParticipantModalOpen,
+  setIsNewOwnerModalOpen,
   addParticipant,
   addProduct,
-  newOwner
+  newOwner,
+  // fetchProvenanceData
   // fetchOwnershipData,
   // fetchParticipantData
 }) => {
+  const {user1, setUser1, theOwnershipId, setTheOwnershipId} = useUserContext();
   const handleAddParticipant = async () => {
-    await addParticipant(
-      provider, // Asegúrate de que `provider` está definido o es pasado como prop
-      contract, // Asegúrate de que `contract` está definido o es pasado como prop
-      address, // Asegúrate de que `address` está definido o es pasado como prop
+    addParticipant(
+      provider, 
+      contract, 
+      address, 
       name,
       pass,
       participantType,
       participantAddress,
+      setIsParticipantModalOpen,
       setIsLoading,
       setParticipantData,
       setName,
@@ -127,7 +147,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
   };
 
   const handleAddProduct = async () => {
-    await addProduct(
+    addProduct(
       provider, 
       contract, 
       address, 
@@ -136,6 +156,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
       partNumber,
       serialNumber,
       productCost,
+      setIsProductModalOpen,
       setIsLoading,
       setProductData,
       setOwnerId,
@@ -146,17 +167,23 @@ const DataEntry: React.FC<ProductEntryProps> = ({
   };
 
   const handleNewOwner = async () => {
-    await newOwner(
+    newOwner(
       provider, // Asegúrate de que `provider` está definido o es pasado como prop
-      contract, // Asegúrate de que `contract` está definido o es pasado como prop
-      address, // Asegúrate de que `address` está definido o es pasado como prop
+      contract, 
+      address,
       user1,
       user2,
       theProductId,
+      theOwnershipId,
+      setIsNewOwnerModalOpen,
       setIsLoading,
+      setProvenanceData,
+      setOwnershipData,
       setUser1,
       setUser2,
-      setTheProductId
+      setTheOwnershipId,
+      setTheProductId,
+      // fetchProvenanceData
     );
   };
 

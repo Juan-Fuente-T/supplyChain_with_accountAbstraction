@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App";
 import { ToastContainer } from 'react-toastify'
 import Modal from 'react-modal';
+import { UserProvider } from './contexts/UserContext';
 
 Modal.setAppElement('#root');
 
@@ -12,8 +13,10 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
-    <ToastContainer />
+    <UserProvider>
+      <App />
+      <ToastContainer />
+    </UserProvider>
   </React.StrictMode>
 );
 // import React from 'react'

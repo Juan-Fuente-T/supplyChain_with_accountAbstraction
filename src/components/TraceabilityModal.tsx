@@ -95,8 +95,15 @@ type Ownership = {
 }, [ids, isTraceabilityModalOpen]);
 
 return (
-  <Modal className="flex flex-wrap flex-col content-center p-4 px-12 m-auto mt-72 w-min-1/3 w-fit bg-gray-50 border-2 border-stone-800 rounded-md" isOpen={isTraceabilityModalOpen} onRequestClose={onRequestClose} contentLabel="Product Traceability Details" appElement={document.getElementById('root') || undefined}>
-    <h2 className="py-1 px-2 w-fit bg-blue-300 text-stone-800 border-2 border-stone-800 p-2 rounded-md text-l font-semibold">Trazabilidad del producto {productId}</h2>
+  // <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+  <div >
+  
+    <Modal className="modal-custom" 
+  // <Modal className="m-auto bg-opacity-60 flex flex-wrap flex-col justify-center p-4 px-12  mx-4 w-min-1/3 w-fit bg-gray-50 border-2 border-stone-800 rounded-md" 
+  isOpen={isTraceabilityModalOpen} onRequestClose={onRequestClose} contentLabel="Product Traceability Details" appElement={document.getElementById('root') || undefined}>
+    <h2 className="py-1 px-2 w-fit  bg-blue-300 text-stone-800 border-2 border-stone-800 p-2 rounded-md text-l font-semibold">
+      Trazabilidad del producto {productId}
+    </h2>
     <p className="mt-2">Lista de transferencias: {provenanceData?.map(num => num.toString()).join(', ')}</p>
     {ownerships.length === 0 ? (
       <p>No hay transferencias de producto.</p>
@@ -128,6 +135,7 @@ return (
     </button>
     </div>
   </Modal>
+  </div>
 );
 };
 export default TraceabilityModal;
