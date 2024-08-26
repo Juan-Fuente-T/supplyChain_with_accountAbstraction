@@ -418,7 +418,7 @@ function App(): JSX.Element {
         );
         // Validar que ownership no sea vacío
         if (ownership.productId !== 0 && ownership.productOwnerId !== 0 && ownership.productOwnerAddress && ownership.trxTimeStamp) {
-          console.log("buhhhhhhhhhhhhhhhh", ownership);
+          
           addItemToLocalStorage(ownership, "ownership");
           // return ownership;
         } else {
@@ -462,7 +462,7 @@ function App(): JSX.Element {
 
   const unloggedInView = (
     // <button onClick={login} className="card">
-    <button className="bg-orange-300 p-2 text-xl font-bold text-center w-1/5 m-auto mt-4 mb-4 border-2 border-stone-800 rounded-md hover:bg-orange-200 transition-all disabled:opacity-80 text-xl font-semibold" onClick={login}>
+    <button className="bg-[#ca0372] p-2 text-xl font-bold text-center w-1/5 m-auto mt-4 mb-4 border-2 border-stone-800 rounded-md hover:bg-[#ca0372] bg-opacity-50 transition-all disabled:opacity-80 text-xl font-semibold" onClick={login}>
       Login
     </button>
   );
@@ -493,7 +493,7 @@ function App(): JSX.Element {
       {/* <div> */}
       {/* <button onClick={logout} className="card"> */}
 
-      <button className="bg-orange-300 p-2 text-xl font-bold text-center w-1/5 m-auto mt-4 mb-4 border-2 border-stone-800 rounded-md hover:bg-orange-200 transition-all disabled:opacity-80 text-xl font-semibold" onClick={logout}>
+      <button className="bg-[#ca0372] p-2 text-xl font-bold text-center w-1/5 m-auto mt-4 mb-4 border-2 border-stone-800 rounded-md hover:bg-[#ca0372] hover:opacity-50  transition-all disabled:opacity-80 text-xl font-semibold " onClick={logout}>
         Log Out
       </button>
       {/* </div> */}
@@ -504,10 +504,20 @@ function App(): JSX.Element {
 
   return (
     // <div className="flex flex-col items-center p-4">
-    <div id="container" className="flex flex-col flex-center m-auto text-stone-100 bg-[url('../public/logistica_app.png')]  bg-no-repeat bg-center bg-contain" 
+    <div id="container" className="flex flex-col flex-center m-auto text-stone-100 bg-[#292d67] bg-opacity-10"
+    /* }bg-[url('../public/logistica_app.png')]  bg-no-repeat bg-center bg-contain" */
     // style={{backgroundColor: '#292d67'}} >
     > 
-      <div className="flex flex-col justify-between m-auto w-2/3 border-2 border-stone-800 rounded-md">
+    {/*COLORES:#292d67 azul grisaceo web // rojo: bg-[#ca0372] //turquesa #11c5c5
+     #818a91 gris /#007bff azul mas claro 
+    #0069d9 azul medio #6c757d gris mas oscuro #5a6268 gris aun mas oscuro
+    #28a745 verde #218838 verde mas oscuro #17a2b8 turquesa?
+    #138496 turquesa mas claro #ffc107 naranja #e0a800 naranja mas oscuro
+    #dc3545 rojo #c82333 rojo mas oscuro #343a40 grafito #23272b grafito mas oscuro
+    #212529 casi negro(letra) #f8f9fa casi blanco #e2e6ea casi blanco mas apagado
+    /#ffffff #000000*   extraer de aqui; https://exitflow.cl/wp-content/plugins/pagelayer-pro/css/givecss.php?give=pagelayer-frontend.css%2Cnivo-lightbox.css%2Canimate.min.css%2Cowl.carousel.min.css%2Cowl.theme.default.min.css%2Cfont-awesome5.min.css&premium=%2Cpremium-frontend.css&ver=1.8.5 */}
+    
+      <div className="flex flex-col justify-between m-auto w-2/3 border-2 border-stone-800 rounded-md mb-4">
 
         {/* // <div id="container" className="flex flex-col flex-center m-auto bg-orange-50 text-stone-800  bg-no-repeat bg-center bg-contain"> */}
         {/* <ConnectButton /> */}
@@ -519,13 +529,13 @@ function App(): JSX.Element {
             <button onClick={() => handleClick(participantId, "participant")}>PART</button>
             <button onClick={() => handleClick(ownershipId, "ownership")}>OWNER</button> */}
             <div className="flex flex-row gap-5 w-full justify-center items-center">
-              <img src={user?.profileImage} alt="TraZableDLT" />
+              {/* <img src={user?.profileImage} alt="TraZableDLT" /> */}
               <div className="flex flex-row gap-3 items-left">
-                <h2 className="bg-orange-100 border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-stone-800">
+                <h2 className=" bg-[#11c5c5] border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-[#292d67]">
                   name: {user?.name}</h2>
-                <h2 className="bg-orange-100 border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-stone-800">
+                <h2 className=" bg-[#11c5c5] border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-[#292d67]">
                   email: {user?.email}</h2>
-                <h2 className="bg-orange-100 border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-stone-800">
+                <h2 className=" bg-[#11c5c5] border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-[#292d67]">
                   cuenta: {address}</h2>
               </div>
             </div>
@@ -607,7 +617,14 @@ function App(): JSX.Element {
         {/* <p className="mt-4">ProductId: {actualProductId}</p>
     <p className="mt-4">ParticipantId: {actualParticipantId}</p> */}
       </div>
-      
+      {!loggedIn && (
+        <div  className='p-96 flex-col rounded-md m-auto place-content-center bg-[#292d67]' >
+        {/* <h1 className="m-auto text-6xl text-center">EXIT FLOW</h1> */}
+        <img className=' w-72' src="/exitflow_logo_600X600.png" alt="Logotipo de la expresa de logistica inversa Exit Flow" />
+        <h2 className="m-auto mt-8 text-4xl text-center text-white">-- Cadena de suministro --</h2>
+
+        </div>
+      )}
     </div>
   );
 

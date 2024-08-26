@@ -22,7 +22,7 @@ const UserContext = createContext<UserContextProps>({
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user1, setUser1] = useState<number>(0);
   const [theOwnershipId, setTheOwnershipId] = useState<number>(0);
-  console.log("GGGGGGGGGGGGG", theOwnershipId);
+  console.log("En context", theOwnershipId);
 
   return (
     <UserContext.Provider value={{ user1, setUser1, theOwnershipId, setTheOwnershipId }}>

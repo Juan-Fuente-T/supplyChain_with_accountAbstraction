@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 // import '../App.css';
 // import './App.css';
 import  formatDate  from  '../utils/FormatDate';
@@ -41,8 +41,8 @@ interface DataProviderProps {
   setParticipantId: React.Dispatch<React.SetStateAction<number>>; // Corrección en el nombre y ajuste para el tipo correcto
   setOwnershipId: React.Dispatch<React.SetStateAction<number>>; // Corrección en el nombre y ajuste para el tipo correcto
   setProductId: React.Dispatch<React.SetStateAction<number>>; // Corrección en el nombre y ajuste para el tipo correcto
-  fetchOwnershipData: React.Dispatch<React.SetStateAction<any | undefined>>;
-  fetchParticipantData: React.Dispatch<React.SetStateAction<any | undefined>>;
+  fetchOwnershipData: () => void;
+  fetchParticipantData: () => void;
 }
 
 const DataProvider: React.FC<DataProviderProps> = ({
@@ -65,6 +65,9 @@ const DataProvider: React.FC<DataProviderProps> = ({
   fetchOwnershipData,
   fetchParticipantData
 }) => {  
+  const [showOwnershipData, setShowOwnershipData] = useState(true);
+  const [showParticipantData, setShowParticipantData] = useState(true);
+
   useEffect(() => {
     console.log("productData-DP:", productData);
     console.log("participantData-DP:", participantData);
@@ -76,17 +79,17 @@ const DataProvider: React.FC<DataProviderProps> = ({
     <div className="flex flex-col flex-center m-auto w-full justify-evenly gap-2 p-2 text-stone-800">
       {/* <div className="flex flex-row justify-between mt-4 mb-2 w-full border-2 border-stone-800 rounded-md"> */}
       <div className="flex flex-row justify-between m-auto mt-3 mb-2 w-full max-w-6xl border-2 border-stone-800 rounded-md">
-        <h1 className="w-auto m-2 md:text-3xl content-center">
+        <h1 className="w-auto m-2 text-[#292d67] md:text-3xl content-center">
           Recuperacion de datos</h1>
         <div className="flex flex-row place-items-center m-1">        
-        <p className= "bg-orange-100 text-stone-800 p-2 h-12 content-center border-2 border-stone-800 rounded-md">ID del Producto</p>
+        <p className= "bg-[#292d67] text-white p-2 h-12 content-center border-2 border-stone-800 rounded-md">ID del Producto</p>
         <input
           type="number"
           placeholder="Id del producto"
           min="0"
           value={productId}
           onChange={(e) => setProductId(parseInt(e.target.value))}
-          className="bg-orange-100 border-2 border-stone-800 p-2 ml-1 rounded-md w-24 text-base md:text-xl text-stone-800"
+          className="bg-[#ca0372] border-2 border-stone-800 p-2 ml-1 rounded-md w-24 text-base md:text-xl text-white"
           style={{ fontSize: '20px' }}
         />
         </div>
@@ -96,10 +99,10 @@ const DataProvider: React.FC<DataProviderProps> = ({
       
       <div className="flex justify-around gap-4">
       {/* <p className="flex justify-around mb-8">OWNER Number of product: {ownerNumber || '' ''}</p> */}
-      <p className="bg-orange-100 border-2 border-stone-800 p-4 rounded-md w-full  mb-4 text-base md:text-xl text-stone-800">          {/* PARTICIPANT NAME : {participant_name || '' ''}</p> */}
+      <p className="bg-[#292d67] border-2 border-stone-800 p-4 rounded-md w-full  mb-4 text-base md:text-xl text-white">          {/* PARTICIPANT NAME : {participant_name || '' ''}</p> */}
           {/* NOMBRE DEL PROVEEDOR : {participantData ? JSON.stringify(participantData[0]) : '' ''}</p> */}
           NOMBRE DEL PROVEEDOR : {productData ? JSON.stringify(productData[2]) : '' }</p>
-        <p className="bg-orange-100 border-2 border-stone-800 p-4 rounded-md w-full max-w-4xl mb-4 text-base md:text-xl text-stone-800">
+        <p className="bg-[#292d67] border-2 border-stone-800 p-4 rounded-md w-full max-w-4xl mb-4 text-base md:text-xl text-white">
           {/* PARTICIPANT TYPE : {participant_type || '' ''}</p> */}
           {/* TIPO DE PROVEEDOR: {participantData ? JSON.stringify(participantData[1]) : '' ''}</p> */}
           TIPO DE PROVEEDOR: {productData ? JSON.stringify(productData[3]) : '' }</p>
@@ -129,7 +132,7 @@ const DataProvider: React.FC<DataProviderProps> = ({
       </div>
       <div className="flex flex-col place-items-center w-full m-auto mt-4 gap-4 ">
       
-      <div className="bg-orange-100 border-2 border-stone-800 p-4 rounded-md w-full  mb-4 text-base md:text-xl">
+      <div className="bg-[#292d67] border-2 border-stone-800 p-4 rounded-md w-full  mb-4 text-white text-base md:text-xl">
         Datos del producto: NUMERO - {productData ? productData[0] : '' } &nbsp;|&nbsp;
         Nº DE SERIE - {productData ? productData[1] : '' } &nbsp;|&nbsp;
         COSTE - {productData ? productData[4] ? (typeof productData[4] === 'bigint' ? productData[4].toString() : productData[4].toString()) : '': ''} &nbsp;|&nbsp;
@@ -138,7 +141,7 @@ const DataProvider: React.FC<DataProviderProps> = ({
         CUENTA DEL DUEÑO - {productData ? productData[6] : '' }
       </div>
       {/* <div className="flex flex-row bg-orange-100 border-2 border-stone-800 p-4 rounded-md w-full mb-2 text-base md:text-xl"> */}
-      <div className="flex flex-row bg-orange-100 border-2 border-stone-800 p-4 rounded-md w-full  mb-4 text-base md:text-xl">
+      <div className="flex flex-row bg-[#292d67] border-2 border-stone-800 p-4 rounded-md w-full  mb-4 text-white text-base md:text-xl">
         <h2>Trazabilidad del producto:&nbsp;</h2>
         <div className="flex flex-wrap place-items-center justify-start">
           <span>TRASFERENCIAS-&nbsp;</span>
@@ -160,19 +163,34 @@ const DataProvider: React.FC<DataProviderProps> = ({
       {/* <div className="bg-orange-100 border-2 border-stone-800 p-4 rounded-md w-full  mb-4 text-base md:text-xl">
         Ownership Data: {ownershipData ? JSON.stringify(ownershipData) : '' ''}
       </div> */}
+      {/*Posibles nombres: Intermediario, agente, participante, componente, procesador, actor, comprador, adquiridor*/}
       <div className="flex flex-col  place-items-center justify-start  w-full m-auto p-2 m-2 mb-6 rounded-md border-2 border-stone-800">
-      {ownershipData && ownershipId !== 0 && (
-      <div className="bg-orange-100 border-2 border-stone-800 p-4 rounded-md w-full  mb-2 text-base md:text-xl">
+      {ownershipData && ownershipId !== 0 && showOwnershipData && (
+      <div className="bg-[#292d67] border-2 border-stone-800 p-2 rounded-md w-full  mb-2 text-white text-base md:text-xl relative flex items-center">
         Datos de adquisición: ID DE PRODUCTO - {ownershipData ? (typeof ownershipData[0] === 'bigint' ? ownershipData[0].toString() : ownershipData[0].toString()) : ''} &nbsp;|&nbsp;
-        ID DEL COMPRADOR - {ownershipData ? (typeof ownershipData[1] === 'bigint' ? ownershipData[1].toString() : ownershipData[1].toString()) : ''} &nbsp;|&nbsp;
+        ID DEL PARTICIPANTE - {ownershipData ? (typeof ownershipData[1] === 'bigint' ? ownershipData[1].toString() : ownershipData[1].toString()) : ''} &nbsp;|&nbsp;
         FECHA DE ADQUISICION - {ownershipData ? (typeof ownershipData[3] === 'bigint' ? formatDate(ownershipData[3])  : formatDate(ownershipData[3])) : ''}
+        <button
+        // className="absolute top-2 right-2 text-white bg-red-600 hover:bg-red-800 rounded-full p-1"
+        className="ml-auto text-white text-2xl bg-[#ca0372] hover:bg-opacity-60 rounded-md py-1 px-3"
+        onClick={() => setShowOwnershipData(false)}
+        >
+        X
+        </button>
       </div>
       )}
-      {participantData && participantId !== 0 && (
-      <div className="bg-orange-100 border-2 border-stone-800 p-4 rounded-md w-full mb-2 text-base md:text-xl">
+      {participantData && participantId !== 0 && showParticipantData && (
+      <div className="bg-[#292d67] border-2 border-stone-800 p-2 rounded-md w-full  mb-2 text-white text-base md:text-xl relative flex items-center">
         Datos del proveedor: NOMBRE - {participantData ? JSON.stringify(participantData[0]) : ''} &nbsp;|&nbsp;
         TIPO - {participantData ? JSON.stringify(participantData[1]) : ''}  &nbsp;|&nbsp;
         CUENTA - {participantData ? JSON.stringify(participantData[2]) : ''}
+        <button
+        // className="absolute top-2 right-2 text-white bg-red-600 hover:bg-red-800 rounded-full p-1"
+        className="ml-auto text-white text-2xl bg-[#ca0372] hover:bg-opacity-60 rounded-md py-1 px-3"
+        onClick={() => setShowParticipantData(false)}
+        >
+        X
+        </button>
       </div>
       )}
     
@@ -180,14 +198,14 @@ const DataProvider: React.FC<DataProviderProps> = ({
       <div className="flex flex-row  place-items-center m-auto gap-4 m-2">
 
       <div className="flex flex-row  place-items-center gap-2 m-2 w-full">        
-        <p className= "w-auto bg-orange-100 text-stone-800 border-2 border-stone-800 p-2 h-12 content-center m-2 rounded-md">ID de Transferencia o Proveedor</p>
+        <p className= "w-auto bg-[#292d67] text-white border-2 border-stone-800 p-2 h-12 content-center m-2 rounded-md">ID de Transferencia o Proveedor</p>
         <input
           type="number"
           placeholder="ID de Transferencia o Proveedor"
           min="0"
           value={ownershipId}
           onChange={(e) => {setOwnershipId(parseInt(e.target.value)); setParticipantId(parseInt(e.target.value))}}
-          className="bg-orange-100 border-2 border-stone-800 p-2 m-2 rounded-md w-24 text-base md:text-xl text-stone-800"
+          className="bg-[#ca0372] border-2 border-stone-800 p-2 m-2 rounded-md w-24 text-base md:text-xl text-white"
           style={{ fontSize: '20px' }}
           />
         {/* <button
@@ -204,15 +222,21 @@ const DataProvider: React.FC<DataProviderProps> = ({
         Datos de producto
       </button> */}
       <button
-        onClick={fetchParticipantData}
-        className="py-2 px-3  w-80 bg-orange-500  text-stone-800 border-2 border-stone-800 p-2 rounded-md hover:bg-orange-400  transition-all disabled:opacity-80 text-xl font-semibold"
+          onClick={() => {
+            setShowParticipantData(true); // Restablece la visibilidad
+            fetchParticipantData(); // Llama a la función que busca los datos
+          }}
+        className="py-2 px-3  w-80 bg-[#ca0372] text-white border-2 border-stone-800 p-2 rounded-md hover:bg-opacity-60  transition-all disabled:opacity-80 text-xl font-semibold"
         disabled={isLoading || !ownershipId}
         >
         Datos de proveedor
       </button>
       <button
-        onClick={fetchOwnershipData}
-        className="py-2 px-3 w-80 bg-orange-500 text-stone-800 border-2 border-stone-800 p-2 rounded-md hover:bg-orange-400 transition-all disabled:opacity-80 text-xl font-semibold"
+        onClick={() => {
+          setShowOwnershipData(true); // Restablece la visibilidad
+          fetchOwnershipData(); // Llama a la función que busca los datos
+        }}
+        className="py-2 px-3 w-80 bg-[#ca0372] text-white border-2 border-stone-800 p-2 rounded-md hover:bg-opacity-60 transition-all disabled:opacity-80 text-xl font-semibold"
         disabled={isLoading || !participantId }
         >
         Transferencias de producto

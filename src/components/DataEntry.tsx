@@ -195,7 +195,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
   <div className="flex flex-col justify-between gap-2 ">
       {/* Aquí va el contenido de la sección de entrada de datos del producto */}
       <div className="flex flex-row justify-between place-items-center p-1 m-auto w-full max-w-6xl border-2 border-stone-800 rounded-md">
-      <h1 className="md:text-3xl w-auto">
+      <h1 className="md:text-3xl w-auto text-[#292d67]">
         Entrada de datos</h1>
       <img src="trazable2.png" className={`h-10 w-60 rounded-md`} alt="TrazableDLT logo m2"/>
       </div>
@@ -214,7 +214,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
             placeholder="Nombre del proveedor"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="bg-orange-100 border-2 border-stone-800 p-2 rounded-md w-full flex-grow text-base text-stone-800 md:text-xl"
+            className="bg-[#292d67] border-2 border-stone-800 p-2 rounded-md w-full flex-grow text-base text-white md:text-xl"
             style={{ fontSize: '20px' }}
           />
         </div>
@@ -225,7 +225,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
             placeholder="Password"
             value={pass}
             onChange={(e) => setPass(e.target.value)}
-            className="bg-orange-100 border-2 border-stone-800 p-2 rounded-md w-full flex-grow text-base md:text-xl text-stone-800"
+            className="bg-[#292d67] border-2 border-stone-800 p-2 rounded-md w-full flex-grow text-base md:text-xl text-white"
             style={{ fontSize: '20px' }}
           />
         </div>
@@ -240,7 +240,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
             placeholder="Cuenta del proveedor"
             value={participantAddress}
             onChange={(e) => setParticipantAddress(e.target.value)}
-            className="bg-orange-100 border-2 border-stone-800 p-2 rounded-md w-full flex-grow text-base md:text-xl text-stone-800"
+            className="bg-[#292d67] border-2 border-stone-800 p-2 rounded-md w-full flex-grow text-base md:text-xl text-white"
             style={{ fontSize: '20px' }}
           />
         </div>
@@ -251,7 +251,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
             placeholder="Tipo de proveedor"
             value={participantType}
             onChange={(e) => setParticipantType(e.target.value)}
-            className="bg-orange-100 border-2 border-stone-800 p-2 rounded-md w-full flex-grow text-base md:text-xl text-stone-800"
+            className="bg-[#292d67] border-2 border-stone-800 p-2 rounded-md w-full flex-grow text-base md:text-xl text-white"
             style={{ fontSize: '20px' }}
             />
         </div>
@@ -259,7 +259,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
         </div>
         <div className="content-end">
         <button
-          className="py-1 px-3 h-12 w-56 mt-4 bg-orange-500 text-stone-800 border-2 border-stone-800 rounded-md hover:bg-orange-400 transition-all disabled:opacity-80 text-xl"
+          className="py-1 px-3 h-12 w-56 mt-4 bg-[#ca0372]  text-white border-2 border-stone-800 rounded-md hover:bg-opacity-50 transition-all disabled:opacity-80 text-xl"
           onClick={handleAddParticipant}
           disabled={isLoading || !name || !pass || !participantAddress || !participantType}
         >
@@ -281,7 +281,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
             min="0"
             onChange={(e) => setOwnerId(parseInt(e.target.value))}
             // className="w-28 bg-orange-100 border-2 border-stone-800 p-2 rounded-md  text-base md:text-xl"
-            className="w-28 bg-orange-100 border-2 border-stone-800 p-2 rounded-md text-base md:text-xl text-stone-800"
+            className="w-28 bg-[#292d67] border-2 border-stone-800 p-2 rounded-md text-base md:text-xl text-white"
             style={{fontSize: '20px' }}
           />
         </div>
@@ -292,7 +292,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
             placeholder="Número del producto"
             value={modelNumber}
             onChange={(e) => setModelNumber(e.target.value)}
-            className="flex-grow bg-orange-100 border-2 border-stone-800 p-2 rounded-md text-base md:text-xl text-stone-800"
+            className="flex-grow bg-[#292d67] border-2 border-stone-800 p-2 rounded-md text-base md:text-xl text-white"
             style={{ fontSize: '20px' }}
             // style={{ backgroundColor: '#5e606d', fontSize: '20px' }}
           />
@@ -304,7 +304,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
             placeholder="Número de serie del producto" 
             value={serialNumber}
             onChange={(e) => setSerialNumber(e.target.value)}
-            className="flex-grow bg-orange-100 border-2 border-stone-800 p-2 rounded-md text-base md:text-xl text-stone-800"
+            className="flex-grow bg-[#292d67] border-2 border-stone-800 p-2 rounded-md text-base md:text-xl text-white"
             style={{fontSize: '20px' }}
           />
           </div>
@@ -318,7 +318,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
             value={productCost}
             onChange={(e) => setProductCost(parseFloat(e.target.value))}
             // className="w-1/3 h-12 mt-6 bg-orange-100 border-2 border-stone-800 p-2 rounded-md  text-base md:text-xl"
-            className="w-36 bg-orange-100 border-2 border-stone-800 p-2 rounded-md  text-base md:text-xl text-stone-800"
+            className="w-36 bg-[#292d67] border-2 border-stone-800 p-2 rounded-md  text-base md:text-xl text-white"
             // className="w-full bg-orange-100 border-2 border-stone-800 p-2 rounded-md  text-base md:text-xl"
             // style={{ backgroundColor: '#5e606d', fontSize: '20px' }}
             style={{ fontSize: '20px' }}
@@ -327,7 +327,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
         </div>
         <div>
         <button
-          className="py-1 px-3 h-12 w-56 mt-6 bg-orange-500 text-stone-800 border-2 border-stone-800 rounded-md hover:bg-orange-400 transition-all disabled:opacity-80 text-xl"
+          className="py-1 px-3 h-12 w-56 mt-6 bg-[#ca0372] text-white border-2 border-stone-800 rounded-md hover:bg-opacity-50 transition-all disabled:opacity-80 text-xl"
           onClick={handleAddProduct}
           disabled={isLoading || !ownerId || !modelNumber || !serialNumber || !productCost}
           >
@@ -347,7 +347,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
             min="0"
             value={theProductId}
             onChange={(e) => setTheProductId(parseInt(e.target.value))}
-            className="w-28 h-12 bg-orange-100 border-2 border-stone-800 p-2 rounded-md text-base md:text-xl text-stone-800"
+            className="w-28 h-12 bg-[#292d67] border-2 border-stone-800 p-2 rounded-md text-base md:text-xl text-white"
             style={{ fontSize: '20px' }}
           />
         </div>
@@ -359,7 +359,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
           value={user1}
           min="0"
           onChange={(e) => setUser1(parseInt(e.target.value))}
-          className="flex-grow max-w-md  bg-orange-100 p-2 border-2 border-stone-800  rounded-md text-base md:text-xl text-stone-800"
+          className="flex-grow max-w-md bg-[#292d67] p-2 border-2 border-stone-800  rounded-md text-base md:text-xl text-white"
           style={{ fontSize: '20px' }}
         />
         </div>
@@ -372,7 +372,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
             value={user2}
             onChange={(e) => setUser2(parseInt(e.target.value))}
             // className="py-1 px-3 h-12 flex-grow bg-orange-100 border-2 border-stone-800 p-2 rounded-md w-full text-base md:text-xl"
-            className=" flex-grow  bg-orange-100 p-2 border-2 border-stone-800 rounded-md text-base md:text-xl text-stone-800"
+            className=" flex-grow  bg-[#292d67] p-2 border-2 border-stone-800 rounded-md text-base md:text-xl text-white"
             style={{ fontSize: '20px' }}
           />
         <div>
@@ -380,7 +380,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
         </div>
 
         <button
-          className="w-56 h-12 mt-6 bg-orange-500 text-stone-800 border-2 border-stone-800 rounded-md hover:bg-orange-400 transition-all disabled:opacity-80 text-xl"
+          className="w-56 h-12 mt-6 bg-[#ca0372] text-white border-2 border-stone-800 rounded-md hover:bg-opacity-50  transition-all disabled:opacity-80 text-xl"
           onClick={handleNewOwner}
           disabled={isLoading || !user1 || !user2 || !theProductId}
           >
