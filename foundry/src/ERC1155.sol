@@ -58,12 +58,12 @@ contract SupplyChainToken is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
     /// @param _to Dirección que recibirá los tokens minteados
     /// @param _id ID del token a mintear
     /// @param _amount Cantidad de tokens a mint
-    function mint(address _to, uint256 _id, uint256 _amount) 
+    function mint(address _to, uint256 _id, uint256 _amount, bytes memory data) 
     // function mint(bytes32 _hash, bytes memory _signature, address _to, uint256 _id, uint256 _amount) 
     // public onlyOwner verifySignature(_to, _hash, _signature){
     public onlyOwner{ //TAL COMO ESTA NO USA LA FIRMA ENCRIPTADA NI EL ONLYOWNER
     // public verifySignature(_to, _hash, _signature){
-        _mint(_to, _id, _amount, "");
+        _mint(_to, _id, _amount, data);
     }
 
     /// @notice Mintea cantidades específicas de múltiples IDs de token a una dirección especificada
@@ -73,9 +73,10 @@ contract SupplyChainToken is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
     function mintBatch(
         address to,
         uint256[] memory ids,
-        uint256[] memory amounts
+        uint256[] memory amounts,
+        bytes memory data
     ) public onlyOwner{
-         _mintBatch(to, ids, amounts, "");
+         _mintBatch(to, ids, amounts, data);
     }
 
     /// @notice Actualiza el estado del suministro al transferir o quemar tokens
