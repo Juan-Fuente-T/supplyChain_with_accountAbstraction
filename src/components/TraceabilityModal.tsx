@@ -39,7 +39,7 @@ type Ownership = {
     // const [participants, setParticipants] = useState<Map<number, Participant>>(new Map());
     const [participants, setParticipants] = useState<Participant[]>([]);
     // const [productOwnerIds, setPproductOwnerIds] = useState<number[]>([]);
-    console.log("YYY--TTTTTT",provenanceData);
+    // console.log("PPprovenanceData",provenanceData);
     
     let _participants: (string | null)[] = [];
     useEffect(() => {
@@ -55,18 +55,15 @@ type Ownership = {
         }).filter((ownership): ownership is Ownership => ownership !== null);
         
         setOwnerships(fetchedOwnerships);
-        console.log("YYY>allOwnershipIds",allOwnershipIds)
-        console.log("fetchedOwnerships",fetchedOwnerships)
-        console.log("allParticipantsIds",allParticipantsIds)
         /////////////
         // Obtener los productIds de fetchedOwnerships
         const productOwnerIds = fetchedOwnerships.map(ownership => ownership.productOwnerId);
         // Filtrar participantIds basados en los productIds
-        console.log("productOwnerIds", productOwnerIds); // Verifica los productIds aquí
+        // console.log("productOwnerIds", productOwnerIds); // Verifica los productIds aquí
         const filteredParticipants = allParticipantsIds.filter(id => {
           return productOwnerIds.some(productOwnerId => id.startsWith(`participant-${productOwnerId}-`));
         });
-        console.log("XXfilteredParticipants", filteredParticipants);
+        // console.log("XXfilteredParticipants", filteredParticipants);
         ////////////
         // const filteredParticipants = allParticipantsIds.filter(id => ids.some(num => id.startsWith(`participant-${fetchedOwnerships.productOwnerId}`)));
         // console.log("XXfilteredParticipants",filteredParticipants)
@@ -83,14 +80,14 @@ type Ownership = {
           const fetchedParticipants = filteredParticipants.map(id => {
             const participantData = localStorage.getItem(id);
             _participants.push(participantData);
-            console.log("XXfetchedParticipantData", participantData);
+            // console.log("XXfetchedParticipantData", participantData);
             return participantData ? JSON.parse(participantData) as Participant  : null;
           }).filter((participant): participant is Participant => participant !== null);
           
           setParticipants(fetchedParticipants);
-          console.log("XXfetchedParticipants", fetchedParticipants);
-          console.log("XXXXXXXXXXXPARTICIPANTs", _participants);
-          console.log("XXPARTICIPANTs", participants);
+          // console.log("XXfetchedParticipants", fetchedParticipants);
+          // console.log("XXPARTICIPANTs", _participants);
+          // console.log("XXPARTICIPANTs", participants);
         }
 }, [ids, isTraceabilityModalOpen]);
 

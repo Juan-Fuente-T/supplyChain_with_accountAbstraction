@@ -56,10 +56,10 @@ const NewOwnerModal: React.FC<NewOwnerModalProps> = ({ ownershipId, ownershipDat
             setFetchedParticipants(participantsData);
             // setUser1(0);
         }
-        console.log("YYYallParticipantIds",allParticipantIds)
-        console.log("participantIdsToFetch ",participantIdsToFetch )
-        console.log("filteredParticipantIds ",filteredParticipantIds )
-        console.log("participantsData ",participantsData )
+        // console.log("YYYallParticipantIds",allParticipantIds)
+        // console.log("participantIdsToFetch ",participantIdsToFetch )
+        // console.log("filteredParticipantIds ",filteredParticipantIds )
+        // console.log("participantsData ",participantsData )
     }
     }, [isNewOwnerModalOpen, theOwnershipId, user1, ownershipData]);
         
@@ -88,14 +88,13 @@ if (!ownershipData || fetchedParticipants?.length < 2 || user1 === null) return 
   const newParticipant = fetchedParticipants?.find((participant: { id: string; })  =>
     participant.id.startsWith(`participant-${ownershipData[1].toString()}`)
   );
-  console.log("DATA                     USER1" ,user1? user1: 999);
-  console.log("DATA                     _OWNERSHIPID" ,theOwnershipId);
-  console.log("DATA                     PIrulenta" ,ownershipData ,ownershipId, fetchedParticipants);
+  // console.log("DATA _OWNERSHIPID" ,theOwnershipId);
+  // console.log("DATA 3 datos:" ,ownershipData ,ownershipId, fetchedParticipants);
 //   if (!ownershipData || !ownershipId || fetchedParticipants.length < 2) return null;
   // const oldParticipant = fetchedParticipants?.find((participant: { id: string; }) => participant.id.startsWith(`participant-${user1.toString()}`));
   // const newParticipant = fetchedParticipants?.find((participant: { id: string; }) => participant.id.startsWith(`participant-${ownershipData[1].toString()}`));
-  console.log("oldParticipant ",oldParticipant)
-  console.log("newParticipant ",newParticipant)
+  // console.log("oldParticipant ",oldParticipant)
+  // console.log("newParticipant ",newParticipant)
 // }
   return (
     <Modal className="flex flex-wrap flex-col place-content-end  p-4 px-12 m-auto mt-72 w-fit bg-gray-50 border-2 border-stone-800 rounded-md"

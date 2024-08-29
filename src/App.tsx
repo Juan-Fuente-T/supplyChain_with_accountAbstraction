@@ -30,6 +30,7 @@ import { ToastContainer, toast } from 'react-toastify';
 
 import { CommonPrivateKeyProvider } from "@web3auth/base-provider";
 import 'react-toastify/dist/ReactToastify.css';
+import { UploadNFT } from './components/UploadNFT';
 
 // Firebase libraries for custom authentication
 // import { initializeApp } from "firebase/app";
@@ -259,6 +260,22 @@ function App(): JSX.Element {
     init();
   }, [productId]);
 
+    useEffect(() => {
+    if (signer && address && contract) {
+        UploadNFT(signer, address, contract)
+            .then(result => {
+              if(result){
+                console.log('NFT uploaded successfully:', result);
+              }else{
+                console.log('No uploaded NFT:', result);
+              }
+            })
+            .catch(error => {
+                console.error('Error uploading NFT:', error);
+            });
+    }
+}, [signer, address, contract]);
+
   const login = async () => {
     // IMP START - Login
     const web3authProvider = await web3auth.connect();
@@ -435,6 +452,7 @@ function App(): JSX.Element {
     }
     // localStorage.setItem(ownership.id, JSON.stringify(ownership));
   }
+
   function handleClick(itemId: number, itemType: string) {
     if (itemType === "product") {
       findItemsByInitialNumbers([itemId], "product"); // Llama a tu función

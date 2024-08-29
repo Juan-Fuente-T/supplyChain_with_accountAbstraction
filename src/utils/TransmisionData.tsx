@@ -37,7 +37,10 @@ type Ownership = {
 //   const ProductData: React.FC<ProductDataModalProps> = ({ ids, isTraceabilityModalOpen, productId, productData, provenanceData, onRequestClose }) => {
     export async function getTransmisionData(
         ids: ethers.BigNumberish[]
-      ): Promise<{ ownerships: Ownership[], participants: Participant[] }> {    
+      // ): Promise<{ ownerships: Ownership[], participants: Participant[]}> {    
+      ): Promise<{ transmisionDataArray: { Fecha: string; Participante: string; Clase: string }[], filteredIds: string[] }> {        
+      // ): Promise<{ transmisionDataArray: { Fecha: string; Participante: string; Clase: string }[], participantPerOwnership: { ownership: Ownership; participant: Participant | null }[] }> {        
+        
         // const [ownerships, setOwnerships] = useState<Ownership[]>([]);
     // const [participants, setParticipants] = useState<Map<number, Participant>>(new Map());
     // const [participants, setParticipants] = useState<Participant[]>([]);
@@ -98,10 +101,71 @@ type Ownership = {
           
         //   setParticipants(fetchedParticipants);
           console.log("fetchedParticipants", fetchedParticipants);
-        
+          const participantPerOwnership = fetchedOwnerships.map(ownership => {
+            const correspondingParticipant = fetchedParticipants.find(participant => 
+                participant.id.startsWith(`participant-${ownership.productOwnerId}-`)
+            );
         // };
         // fetchData();
-        return { ownerships: fetchedOwnerships, participants: fetchedParticipants };
-  }
+        // return { ownerships: fetchedOwnerships, participants: fetchedParticipants};
+        return { ownership, participant: correspondingParticipant || null };
+      });
 
- 
+  // Generar datos estructurados para el uso en otros componentes
+  const transmisionDataArray = participantPerOwnership.map(data => ({
+    Fecha: data.ownership ? data.ownership.trxTimeStamp : "Fecha desconocida",
+    Participante: data.participant ? data.participant.name : 'Desconocido',
+    Clase: data.participant ? data.participant.participantType : 'Clase desconocida',
+  }));
+
+  // return { transmisionDataArray, participantPerOwnership };
+  return { transmisionDataArray, filteredIds };
+}
+//Entradas y salidas esperadas:
+//Ejemplo de ownership
+// {
+  //   "id": "ownership-7-599b660d-cac0-456a-b4d7-8a61859e764b",
+  //   "productId": "2",
+  //   "productOwnerId": "3",
+//   "productOwnerAddress": "0xe67F18c5064f12470Efc943798236edF45CF3Afb",
+//   "trxTimeStamp": "30/07/2024"
+// }
+
+//Ejemplo de participant
+// {
+//       "id": "participant-5-693ef050-8c92-4037-9cc3-ee4b6b27630d",
+//       "name": "Dani",
+//       "participantType": "Consumer",
+//       "participantAddress": "0xe67F18c5064f12470Efc943798236edF45CF3Afb"
+//     }
+
+//Resultado de la función getTransmisionData podría ser:
+
+// transmisionDataArray:
+// [
+//   {
+//     "Fecha": "30/07/2024",
+//     "Participante": "Dani",
+//     "Clase": "Consumer"
+//   }
+// ]
+
+// participantPerOwnership:
+
+// [
+//   {
+//     "ownership": {
+//       "id": "ownership-7-599b660d-cac0-456a-b4d7-8a61859e764b",
+//       "productId": "2",
+//       "productOwnerId": "3",
+//       "productOwnerAddress": "0xe67F18c5064f12470Efc943798236edF45CF3Afb",
+//       "trxTimeStamp": "30/07/2024"
+//     },
+//     "participant": {
+//       "id": "participant-5-693ef050-8c92-4037-9cc3-ee4b6b27630d",
+//       "name": "Dani",
+//       "participantType": "Consumer",
+//       "participantAddress": "0xe67F18c5064f12470Efc943798236edF45CF3Afb"
+//     }
+//   }
+// ]

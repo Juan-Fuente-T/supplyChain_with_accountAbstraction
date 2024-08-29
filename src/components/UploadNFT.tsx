@@ -1,78 +1,86 @@
 // import Navbar from "./Navbar";
 // import Footer from "./Footer";
-import { useEffect, useState } from "react";
-import { uploadFileToIPFS, uploadJSONToIPFS } from "../utils/Pinata";
+// import { useEffect, useState } from "react";
+import { uploadJSONToIPFS } from "../utils/Pinata";
 import { supplyChainTokenABI } from '../assets/abis/supplyChainTokenABI';
 // import { useLocation } from "react-router";
-import { Contract, ethers, Signer } from 'ethers';
+import { Contract, ethers } from 'ethers';
 import { TOKEN_CONTRACT_ADDRESS } from "../assets/constants";
-import { Address } from "web3";
+// import { Address } from "web3";
 import { toast } from "react-toastify";
-import { getTransmisionData } from "../utils/TrasmisionData";
+import { getTransmisionData } from "../utils/TransmisionData";
+
+type TransmisionData = {
+    Fecha: string;
+    Participante: string;
+    Clase: string;
+};
 
 
-// interface UploadNFTProps {
-//     contract: ethers.Contract;
-//     address: string;
-// }
-export default function UploadNFT(signer: Signer, address: string) {
-    const [transmisionData, updateTransmisionData] = useState<{ Fecha: string; Participante: string; Clase: string; }[]>([]);
-    // const [fileURL, setFileURL] = useState<string | undefined>("");
-    // const ethers = require("ethers");
-    const [message, updateMessage] = useState('');
-    const [productId, setProductId] = useState<ethers.BigNumberish | undefined>(undefined);
-    const [productData, setProductData] = useState<ethers.BigNumberish[] | undefined>([]);
-    const [tokenContract, setTokenContract] = useState<Contract | null>(null);
-    // const location = useLocation();
+// export async function UploadNFT(signer: Signer, address: string) {    // const [transmisionData, updateTransmisionData] = useState<{ Fecha: string; Participante: string; Clase: string; }[]>([]);
+//     // const [fileURL, setFileURL] = useState<string | undefined>("");
 
-    // async function disableButton() {
-    //     const listButton = document.getElementById("list-button") as HTMLButtonElement | null;
-    //     if (listButton) {
-    //         listButton.disabled = true;
-    //         listButton.style.backgroundColor = "grey";
-    //         listButton.style.opacity = "0.3"; // Asegúrate de que sea una cadena
-    //     }
-    // }
+//     // // const [productData, setProductData] = useState<ethers.BigNumberish[] | undefined>([]);
+//     const [tokenContract, setTokenContract] = useState<Contract | null>(null);
+//     const [tokenEmitted, setTokenEmitted] = useState<boolean | null>(false);
+//     console.log("productId",productId);
+//     console.log("tokenContract",tokenContract);
+
+export async function UploadNFT(signer: ethers.Signer, address: string, contract: Contract): Promise<boolean> {
+    // const [productId, setProductId] = useState<ethers.BigNumberish | undefined>(undefined);
+    let productId: ethers.BigNumberish | undefined;
+    // Variable para evitar duplicar el procesamiento de eventos
+    let isProcessing = false;
+    const tokenContract = new Contract(TOKEN_CONTRACT_ADDRESS, supplyChainTokenABI, signer);
+    console.log("UP_tokenContract", tokenContract);
     
-    // async function enableButton() {
-    //     const listButton = document.getElementById("list-button") as HTMLButtonElement | null;
-    //     if (listButton) {
-    //         listButton.disabled = false;
-    //         listButton.style.backgroundColor = "#A500FF";
-    //         listButton.style.opacity = "1"; // Asegúrate de que sea una cadena
-    //     }
-    // }
-    async function getNFTData(){
-        try {
-            // Llama a la función y espera los resultados
-            if(productData){
-                const { ownerships, participants } = await getTransmisionData(productData); // Pasa los IDs que necesites
+    return new Promise((resolve, reject) => {
+        contract.on('TransferOwnership', async (_productId: ethers.BigNumberish) => {
+            if (isProcessing) return; // Evita la concurrencia si ya se está procesando un evento
+            isProcessing = true;
+            console.log(`Product ${_productId.toString()} has been transferred`);
+            // productId? setProductId(productId) : setProductId("");
+            productId = _productId;
+            try {
+                // Obtener la información del producto
+                const _productInfo = await contract.getProduct(productId);
+                const _productData = await contract.getProvenance(productId);
+                console.log("UP__productInfo",_productInfo);
+                console.log("UP__productData ",_productData );
+                const { transmisionDataArray, filteredIds } = await getTransmisionData(_productData);
+                console.log("UP__productData + filteredIds ",transmisionDataArray, filteredIds);
                 
-                // Ahora ownerships y participants contienen los datos obtenidos
-                console.log("Ownerships:", ownerships);
-                console.log("Participants:", participants);
-               // Generar el nombre y descripción para el NFT basado en los datos obtenidos
-               const transmisionDataArray = ownerships.map(ownership => {
-                const correspondingParticipant = participants.find(participant => 
-                    participant.id.startsWith(`participant-${ownership.productOwnerId}-`)
-                );
-
-                return {
-                    Fecha: ownership.trxTimeStamp,
-                    Participante: correspondingParticipant ? correspondingParticipant.name : 'Desconocido',
-                    Clase: correspondingParticipant ? correspondingParticipant.participantType : 'Clase desconocida',
-                };
+                if (_productInfo.participantType === 'Consumer') {
+                    console.log(`Product ${productId.toString()} has been transferred to consumer`);
+                    
+                    // Subir los metadatos a IPFS y emitir NFT
+                    const metadataURL = await uploadMetadataToIPFS(_productData, productId, transmisionDataArray);
+                    console.log("UP__metadataURL",metadataURL);
+                        if (metadataURL !== -1 && metadataURL !== undefined) {
+                            const success = await emitNFT(tokenContract, productId, metadataURL, address, filteredIds);
+                            if (success) {
+                                console.log('NFT emitted successfully');
+                                // Eliminar las ownerships filtradas del localStorage
+                                filteredIds.forEach(id => localStorage.removeItem(id));
+                                resolve(true);
+                            } else {
+                                console.log('NFT emission failed');
+                                resolve(false);
+                            }
+                        } else {
+                            resolve(false);
+                        }
+                    } else {
+                        resolve(false);
+                    }
+                } catch (error) {
+                    console.error('Error fetching product data:', error);
+                    resolve(false);
+                } finally {
+                    isProcessing = false; // Permite procesar el siguiente evento
+                }
             });
-
-            // Actualizar el estado con los datos preparados
-            updateTransmisionData(transmisionDataArray);
-
-            console.log("Transmision Data Array:", transmisionDataArray);
-            } 
-            // Puedes realizar otras operaciones con los datos obtenidos aquí
-        } catch (error) {
-            console.error("Error obteniendo datos de NFT:", error);
-        }
+        });
     }
     
     //This function uploads the NFT image to IPFS    
@@ -101,25 +109,32 @@ export default function UploadNFT(signer: Signer, address: string) {
     //     }
     // }
     
-    // const formParams = {
-    //     name: 'Nombre temporal',
-    //     description: 'Descripción temporal',
-    //     price: '0.01'
-    // };
+   
     
     //This function uploads the metadata to IPFS
-    async function uploadMetadataToIPFS() {
-        // Verificar si el array de transmisionData no está vacío
-    if (!productId && transmisionData.length === 0) {
-        updateMessage("No hay datos para cargar a IPFS.");
+    async function uploadMetadataToIPFS(productData: ethers.BigNumberish[], productId: ethers.BigNumberish, transmisionDataArray: TransmisionData[]) {
+    //     let transmisionDataArray: TransmisionData[] = [];
+
+    // try {
+    //     if (productData) {
+    //         // const { transmisionDataArray, } = await getTransmisionData(productData);
+    //         // transmisionDataArray = data.transmisionDataArray;   
+    //         // updateTransmisionData(transmisionDataArray);
+    //         console.log("transmisionDataArray", transmisionDataArray);
+    //     }
+    // } catch (e) {
+    //     console.log("Error obteniendo los datos del NFT:", e);
+    // }
+
+    // Verificar si el array de transmisionData no está vacío
+    if (!productId || transmisionDataArray.length === 0) {
+        toast.error("No hay datos para cargar a IPFS.");
+        console.error("No hay datos para cargar a IPFS.");
         return -1;
     }
-
-    // Crear el objeto JSON que contendrá toda la información de ownerships
-       
     const nftJSON = {
         productId: productId,
-        ownerships: transmisionData.map(data => ({
+        ownerships: transmisionDataArray?.map(data => ({
             Fecha: data.Fecha,
             Participante: data.Participante,
             Clase: data.Clase,
@@ -165,85 +180,31 @@ export default function UploadNFT(signer: Signer, address: string) {
     //         console.log("error uploading JSON metadata:", e)
     //     }
     // }
-    useEffect(() => {
-        const tokenContract = new Contract(TOKEN_CONTRACT_ADDRESS, supplyChainTokenABI, signer);
-        setTokenContract(tokenContract);
 
-        const initContractListener = async () => {
-            if (!tokenContract) {
-                console.error("TokenContrac is not initialized");
-            return;
-        }
-          
-          // Escuchar el evento TransferOwnership
-          tokenContract.on('TransferOwnership', async (productId: ethers.BigNumberish) => {
-            console.log(`Product ${productId.toString()} has been transferred`);
-            productId? setProductId(productId) : setProductId(undefined);
-            try {
-              // Fetch the product data
-              const _productInfo = await tokenContract.getProduct(productId);
-              const _productData = await tokenContract.getProvenance(productId);
-              setProductData(_productData);
-              
-              // Check if the product has been transferred to a customer
-              const participantType = _productInfo.participantType; // Adjust based on your contract's return type
-              if (participantType === 'customer') {
-                console.log(`Product ${productId.toString()} has been transferred to a customer`);
-                // Aquí puedes realizar cualquier otra acción, como emitir un NFT o notificar al usuario
-                // Emitir NFT y comprobar si fue exitoso
-                await getNFTData(); // Espera a que termine antes de continuar
-                const metadataURL = await uploadMetadataToIPFS();
-                if (metadataURL !== -1 && metadataURL !== undefined) {
-                    // Emitir NFT
-                    const success = await emitNFT(productId, metadataURL);
-                    if (success) {
-                        console.log('NFT emitted successfully');
-                    } else {
-                        console.log('NFT emission failed');
-                    }
-                }
-              }
-            } catch (error) {
-              console.error('Error fetching product data:', error);
-            }
-          });
-        };
     
-        initContractListener();
+    async function emitNFT(
+        tokenContract: Contract,
+        productId: ethers.BigNumberish,
+        metadataURL: string,
+        address: string, 
+        filteredIds: string[]
+    ): Promise<boolean> {
+        if (!tokenContract || !metadataURL) return false;
     
-        return () => {
-          if (tokenContract) {
-            tokenContract.off('TransferOwnership');
-          }
-        };
-      }, [tokenContract, signer]);
-    
-      const emitNFT = async (productId: ethers.BigNumberish, metadataURL: string) => {        // if (!contract || !signer) return;
-        if (!tokenContract ) return;
-    
-        if (!metadataURL) {
-            console.error('Metadata URL is undefined.');
-            return false; // O lanza un error si prefieres
-        }
-
         try {
-        //   const metadata = JSON.stringify({
-        //     productId: productId.toString(),
-        //     timestamp: new Date().toISOString()
-        //   });
-    
-          const tx = await tokenContract.mint(address, productId, 1, metadataURL);
-          await tx.wait();
-          console.log('NFT emitted successfully');
-          toast("Successfully listed your NFT!");
-          return true;
-          //   alert("Successfully listed your NFT!");
+            const tx = await tokenContract.mint(address, productId, 1, metadataURL);
+            await tx.wait();
+            console.log('NFT emitted successfully');
+            toast("Successfully listed your NFT!");
+            // Eliminar las ownerships del localStorage
+            filteredIds.forEach(id => localStorage.removeItem(id));
+            return true;
         } catch (error) {
-            toast('Emitting NFT failed');
+            toast.error('Emitting NFT failed');
             console.error('Error emitting NFT:', error);
             return false;
         }
-      };
+    }
     
     // async function uploadNFT(e: React.FormEvent<HTMLFormElement>){
     //     console.log("listNFT called");
@@ -267,4 +228,5 @@ export default function UploadNFT(signer: Signer, address: string) {
     //     catch(e) {
     //         alert( "Upload error"+e )
     //     }
-    }
+   
+    

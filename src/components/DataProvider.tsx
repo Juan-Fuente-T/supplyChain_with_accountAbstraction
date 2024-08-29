@@ -101,7 +101,8 @@ const DataProvider: React.FC<DataProviderProps> = ({
       {/* <p className="flex justify-around mb-8">OWNER Number of product: {ownerNumber || '' ''}</p> */}
       <p className="bg-[#292d67] border-2 border-stone-800 p-4 rounded-md w-full  mb-4 text-base md:text-xl text-white">          {/* PARTICIPANT NAME : {participant_name || '' ''}</p> */}
           {/* NOMBRE DEL PROVEEDOR : {participantData ? JSON.stringify(participantData[0]) : '' ''}</p> */}
-          NOMBRE DEL PROVEEDOR : {productData ? JSON.stringify(productData[2]) : '' }</p>
+          {/* NOMBRE DEL PROVEEDOR : {productData ? JSON.stringify(productData[2]) : '' } - NUMERO: {participantId} </p> No es posible usar participantId por qure cmabia cuando el user obtiene datos del participant */}
+          NOMBRE DEL PROVEEDOR : {productData ? JSON.stringify(productData[2]) : '' } </p>
         <p className="bg-[#292d67] border-2 border-stone-800 p-4 rounded-md w-full max-w-4xl mb-4 text-base md:text-xl text-white">
           {/* PARTICIPANT TYPE : {participant_type || '' ''}</p> */}
           {/* TIPO DE PROVEEDOR: {participantData ? JSON.stringify(participantData[1]) : '' ''}</p> */}
@@ -182,6 +183,7 @@ const DataProvider: React.FC<DataProviderProps> = ({
       {participantData && participantId !== 0 && showParticipantData && (
       <div className="bg-[#292d67] border-2 border-stone-800 p-2 rounded-md w-full  mb-2 text-white text-base md:text-xl relative flex items-center">
         Datos del proveedor: NOMBRE - {participantData ? JSON.stringify(participantData[0]) : ''} &nbsp;|&nbsp;
+        {/* NUMERO - {participantId ? participantId : ''}  &nbsp;|&nbsp; */} {/*No puede ser participant, cambia con el input para obtener datos del participant*/}
         TIPO - {participantData ? JSON.stringify(participantData[1]) : ''}  &nbsp;|&nbsp;
         CUENTA - {participantData ? JSON.stringify(participantData[2]) : ''}
         <button
