@@ -40,7 +40,6 @@ import { UploadNFT } from './components/UploadNFT';
 // const clientId = "BGpGpXliyOvZqqOiBsC3il_LS37PYXTTWLmOFpU3aQFI7EseTEIoAR0TmFzcwkloA2gR6x2MYX9BCMcqzztt0faf0V0FquDt69peT6lhGcTJK2UoF2mCUo4ZJaILzd2bEShs6nQfV5YBOffL5VsnC8KPv7c49vkd24"; // get from https://dashboard.web3auth.io
 // const clientId =
 //    "BCrqDXodbfN-LAcUdfhNLc7CPeMVup9CrljBTrgOx9oOSlOGfPAkV9O_NfLlxts4ooEorHaJxftFSCgyP16m0sI"; // get from https://dashboard.web3auth.io
-
 const clientId = process.env.REACT_APP_CLIENT_ID; // get from https://dashboard.web3auth.io
 
 // const verifier = "w3a-firebase-demo";
@@ -260,9 +259,9 @@ function App(): JSX.Element {
     init();
   }, [productId]);
 
-    useEffect(() => {
-    if (signer && address && contract) {
-        UploadNFT(signer, address, contract)
+  useEffect(() => {
+    if (signer && address && contract && provider) {
+        UploadNFT(signer, address, contract, provider)
             .then(result => {
               if(result){
                 console.log('NFT uploaded successfully:', result);
@@ -274,7 +273,7 @@ function App(): JSX.Element {
                 console.error('Error uploading NFT:', error);
             });
     }
-}, [signer, address, contract]);
+}, [signer, address, contract, provider]);
 
   const login = async () => {
     // IMP START - Login
@@ -484,16 +483,19 @@ function App(): JSX.Element {
       Login
     </button>
   );
-
+  const getUserInfo = async () => {
+    const user = await web3auth.getUserInfo();
+    uiConsole(user);
+  };
   const loggedInView = (
     <>
-      {/* <div className="flex-container"> */}
-      {/* <div> */}
-      {/* <button onClick={getUserInfo} className="card">
+      <div className="flex-container">
+      <div>
+      <button onClick={getUserInfo} className="card">
             Get User Info
           </button>
-        </div>
-        <div>
+        </div> 
+        {/* <div>
           <button onClick={getAccounts} className="card">
             Get Accounts
           </button>
@@ -501,20 +503,20 @@ function App(): JSX.Element {
         <div>
           <button onClick={getBalance} className="card">
             Get Balance
-          </button>
-        </div> */}
+          </button> */}
+        </div> 
       {/* <div>
           <button onClick={signMessage} className="card">
             Sign Message
           </button>
         </div> */}
-      {/* <div> */}
+      <div> 
       {/* <button onClick={logout} className="card"> */}
 
       <button className="bg-[#ca0372] p-2 text-xl font-bold text-center w-1/5 m-auto mt-4 mb-4 border-2 border-stone-800 rounded-md hover:bg-[#ca0372] hover:opacity-50  transition-all disabled:opacity-80 text-xl font-semibold " onClick={logout}>
         Log Out
       </button>
-      {/* </div> */}
+      </div>
       {/* </div> */}
     </>
   );

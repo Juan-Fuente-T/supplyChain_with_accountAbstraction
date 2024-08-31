@@ -69,11 +69,11 @@ const DataProvider: React.FC<DataProviderProps> = ({
   const [showParticipantData, setShowParticipantData] = useState(true);
 
   useEffect(() => {
-    console.log("productData-DP:", productData);
-    console.log("participantData-DP:", participantData);
-    console.log("ownershipData-DP:", ownershipData);
-    console.log("provenanceData-DP:", provenanceData);
-    console.log("participant_type-DP:", participant_type);
+    // console.log("productData-DP:", productData);
+    // console.log("participantData-DP:", participantData);
+    // console.log("ownershipData-DP:", ownershipData);
+    // console.log("provenanceData-DP:", provenanceData);
+    // console.log("participant_type-DP:", participant_type);
   }, [productData, participantData, ownershipData, provenanceData, participant_type]);
   return (
     <div className="flex flex-col flex-center m-auto w-full justify-evenly gap-2 p-2 text-stone-800">

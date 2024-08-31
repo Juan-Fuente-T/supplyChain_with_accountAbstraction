@@ -329,9 +329,9 @@ export const supplyChainTokenABI = [
           "type": "uint256"
         },
         {
-          "internalType": "bytes",
-          "name": "data",
-          "type": "bytes"
+          "internalType": "string",
+          "name": "cid",
+          "type": "string"
         }
       ],
       "name": "mint",
@@ -680,7 +680,7 @@ export const supplyChainTokenABI = [
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "",
+          "name": "id",
           "type": "uint256"
         }
       ],

@@ -1,4 +1,7 @@
 //require('dotenv').config();
+import axios from 'axios';
+import FormData from 'form-data';
+
 const key = process.env.REACT_APP_PINATA_KEY;
 const secret = process.env.REACT_APP_PINATA_SECRET;
 
@@ -13,8 +16,6 @@ interface IPFSResponse {
     message?: string;
 }
 
-const axios = require('axios');
-const FormData = require('form-data');
 
 // Tipo para el cuerpo del JSON que se subirá
 export const uploadJSONToIPFS = async (JSONBody: Record<string, unknown>): Promise<IPFSResponse> => {
@@ -27,10 +28,11 @@ export const uploadJSONToIPFS = async (JSONBody: Record<string, unknown>): Promi
                 pinata_secret_api_key: secret,
             }
         });
-
+    console.log("response.data.IpfsHash PINATA", response.data.IpfsHash);
         return {
             success: true,
-            pinataURL: `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`,
+            // pinataURL: `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`,
+            pinataURL: response.data.IpfsHash, //devuelve solo el cid, no la url completa, adapta el sistema a este caso concreto
         };
     } catch (error: any) {
         console.error(error);

@@ -7,4 +7,6 @@ export const CONTRACT_ADDRESS = '0x3d51cE57331755130F52D992F1Bc13cC5cB5793e' //s
 // export const CONTRACT_ADDRESS = '0x67Dcd114bd36C5BEA76F264C745Ea0C9CFF1f07f' //suplly chain con autentication , sin onlyowwer, Sepolia
 
 // export const TOKEN_CONTRACT_ADDRESS = '0x3aa399775AE7F84b2965C1Ba597E6623CD65Ca0d' //suplly chain TOKEN Sepolia
-export const TOKEN_CONTRACT_ADDRESS = '0xCAD740341b2024fe294A78E477143055122ce8F6' //suplly chain TOKEN ArbitrumSepolia
+// export const TOKEN_CONTRACT_ADDRESS = '0xCAD740341b2024fe294A78E477143055122ce8F6' //suplly chain TOKEN ArbitrumSepolia
+// export const TOKEN_CONTRACT_ADDRESS = '0x2e5590dfD7f1C51c040f2Fc5B0bBe9764FF6F8F7' //suplly chain TOKEN Sepolia Mejorado
+export const TOKEN_CONTRACT_ADDRESS = '0x109eceB71d0b5fde5053E38a28886cA1A0253967' //suplly chain TOKEN ArbitrumSepolia Mejorado ACTUAL

@@ -1,0 +1,11 @@
+Cosas a corregir:
+- Cambiar el titulo en index.html LISTO
+- Implementar el onlyOwner para mintear si se desea, o una whiteList
+- Usar las firmas para llamar a las funciones si se desea(ya la use en el mint del token)
+- Configurar el password en la funcion SignMessage, en SignMessageFunction.tsx linea 25
+
+Temporalmente: Eliminar las limitaciones en el minteo o los numeros hardcodeados.
+Revisar en UploadNFT(en return new Promise) y en la fucion emitNFT.
+
+
+Vamos a necesitar cuenta de empresa para Web3auth, RPC Alchemy, Pinata.

@@ -18,8 +18,8 @@ const NewOwnerModal: React.FC<NewOwnerModalProps> = ({ ownershipId, ownershipDat
     const [fetchedParticipants, setFetchedParticipants] = useState<any | null>(null);
     const { user1, setUser1, theOwnershipId, setTheOwnershipId } = useUserContext();
     useEffect(() => {
-        console.log("Modal Open: ", isNewOwnerModalOpen);
-    console.log("Current theownershipId: ", theOwnershipId);
+    //     console.log("Modal Open: ", isNewOwnerModalOpen);
+    // console.log("Current theownershipId: ", theOwnershipId);
         if (isNewOwnerModalOpen) {
             // Actualizar _ownershipId solo si el modal se abre
             setTheOwnershipId(theOwnershipId);
@@ -27,8 +27,8 @@ const NewOwnerModal: React.FC<NewOwnerModalProps> = ({ ownershipId, ownershipDat
     }, [isNewOwnerModalOpen, theOwnershipId, setTheOwnershipId]);
   
     useEffect(() => {
-        console.log("2Modal Open2: ", isNewOwnerModalOpen);
-        console.log("2Checking theOwnershipId2: ", theOwnershipId);
+        // console.log("2Modal Open2: ", isNewOwnerModalOpen);
+        // console.log("2Checking theOwnershipId2: ", theOwnershipId);
     
         if (isNewOwnerModalOpen) {
         //   const allProductIds: string[] = JSON.parse(localStorage.getItem('productIds') || '[]');

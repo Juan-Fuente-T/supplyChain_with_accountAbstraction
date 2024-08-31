@@ -36,7 +36,7 @@ type Ownership = {
 
 //   const ProductData: React.FC<ProductDataModalProps> = ({ ids, isTraceabilityModalOpen, productId, productData, provenanceData, onRequestClose }) => {
     export async function getTransmisionData(
-        ids: ethers.BigNumberish[]
+      ownershipIds: ethers.BigNumberish[]
       // ): Promise<{ ownerships: Ownership[], participants: Participant[]}> {    
       ): Promise<{ transmisionDataArray: { Fecha: string; Participante: string; Clase: string }[], filteredIds: string[] }> {        
       // ): Promise<{ transmisionDataArray: { Fecha: string; Participante: string; Clase: string }[], participantPerOwnership: { ownership: Ownership; participant: Participant | null }[] }> {        
@@ -58,6 +58,7 @@ type Ownership = {
         const allOwnershipIds: string[] = JSON.parse(localStorage.getItem('ownershipIds') || '[]');
         const allParticipantsIds: string[] = JSON.parse(localStorage.getItem('participantIds') || '[]');
         
+        const ids = ownershipIds.map(id => id.toString());
         const filteredIds = allOwnershipIds.filter(id => ids?.some(num => id.startsWith(`ownership-${num}-`)));
         
         const fetchedOwnerships = filteredIds.map(id => {
@@ -67,6 +68,7 @@ type Ownership = {
         
         // setOwnerships(fetchedOwnerships);
         console.log("allOwnershipIds",allOwnershipIds)
+        console.log("Ids",ids)
         console.log("fetchedOwnerships",fetchedOwnerships)
         console.log("allParticipantsIds",allParticipantsIds)
         /////////////
