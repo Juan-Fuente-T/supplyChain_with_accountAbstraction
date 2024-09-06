@@ -1,18 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Script} from "forge-std/Script.sol";
-import {console} from "forge-std/console.sol";
-// import {EducatETHNFT} from "src/EducatETHNFTerc721.sol";
+import { Script } from "forge-std/Script.sol";
+import { console } from "forge-std/console.sol";
+import { SupplyChain } from "../src/SupplyChainModSigner.sol";
 
-contract EducatETHNFTDeploy is Script {
+contract SupplyChainScript is Script {
     function setUp() public {}
 
     function run() public {
         vm.startBroadcast();
-        address owner = vm.envAddress("OWNER");
-        // EducatETHNFT educatethnft = new EducatETHNFT(owner);
+
+        SupplyChain supplyChain = new SupplyChain();
         // console.log("Contract deployed to %s", address(educatethnft));
+        console.log("SupplyChain contract deployed at: ", address(supplyChain));
+        
         vm.stopBroadcast();
         // emit Deployed(address(educatethnft));
     }

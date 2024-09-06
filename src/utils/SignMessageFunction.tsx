@@ -1,3 +1,6 @@
+import { IProvider } from '@web3auth/base';
+import { ethers, Provider, Signer } from 'ethers';
+
 import Web3 from "web3";
 
 export function uiConsole(...args: any[]): void {
@@ -8,22 +11,28 @@ export function uiConsole(...args: any[]): void {
   console.log(...args);
 }
 
-export const signMessage = async (message: string, provider: any) => {
-    if (!provider) {
+// export const signMessage = async (message: string, provider: any) => {
+export const signMessage = async (message: string, signer: Signer) => {
+  // const provider = new ethers.JsonRpcProvider(process.env.REACT_APP_ARBITRUM_SEPOLIA_RPC_URL);
+    if (!signer) {
       uiConsole("provider not initialized yet");
       return;
     }
-    const web3 = new Web3(provider as any);
-
+    console.log("Signer en SignMessage:", signer);
+    // Obtén el signer del provider
+    // const web3 = new Web3(provider as any);
+  
     // Get user's Ethereum public address
-    const fromAddress = (await web3.eth.getAccounts())[0];
-
+    // const fromAddress = (await web3.eth.getAccounts())[0];
+    
+    // Firma el mensaje
     // Sign the message
-    const signedMessage = await web3.eth.personal.sign(
-      message,
-      fromAddress,
-      "test password!" // configure your own password here.
-    );
+    const signedMessage = await signer.signMessage(message);
+    // const signedMessage = await web3.eth.personal.sign(
+    //   message,
+    //   fromAddress,
+    //   "TraZableDLT_Wave-Labs_24" // configure your own password here.
+    // );
     // uiConsole(signedMessage);
 
     if (!signedMessage) {

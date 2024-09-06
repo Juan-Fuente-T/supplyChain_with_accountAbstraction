@@ -7,12 +7,12 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
-using ECDSA for bytes32;
 
 /// @title SupplyChainToken - Un contrato ERC1155 simple para la gestión de tokens en una cadena de suministro
 /// @notice Este contrato permite la creación de tokens ERC1155 que pueden ser usados en una cadena de suministro.
 /// @dev Hereda de ERC1155 de OpenZeppelin, y extiende con funcionalidades de quema y suministro.
 contract SupplyChainToken is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
+    using ECDSA for bytes32;
     
     /// @notice Nombre de la colección de tokens
     string public name = "Supply Chain Token";
@@ -57,11 +57,12 @@ contract SupplyChainToken is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
     /// @param _id ID del token a mintear
     /// @param _amount Cantidad de tokens a mint
     function mint(bytes32 _hash, bytes memory _signature, address _to, uint256 _id, uint256 _amount, string memory cid) 
+    // function mint(address _to, uint256 _id, uint256 _amount, string memory cid) 
     // function mint(bytes32 _hash, bytes memory _signature, address _to, uint256 _id, uint256 _amount) 
     // public onlyOwner verifySignature(_to, _hash, _signature){
     // public onlyOwner{ //TAL COMO ESTA NO USA LA FIRMA ENCRIPTADA 
     public verifySignature(_to, _hash, _signature){ //TAL COMO ESTA NO USA EL ONLYOWNER
-    // public verifySignature(_to, _hash, _signature){
+    // public{
         _mint(_to, _id, _amount, "");
         _tokenCIDs[_id] = cid; // Store CID in the mapping as bytes32
     }

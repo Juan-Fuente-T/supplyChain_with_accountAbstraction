@@ -8,12 +8,13 @@ import formatDate from '../utils/FormatDate';
     isNewOwnerModalOpen: boolean;
     onRequestClose: () => void;
     // productId: number;
-    ownershipId: number;
+    // ownershipId: number;
     ownershipData: any[];
     // provenanceData: any[];
   }
 //THE OWNERSHIPID TAMPOCO SIRVE, ES 0 SALVO AL CREARSE UNA NUEVA OWNERSHIP
-const NewOwnerModal: React.FC<NewOwnerModalProps> = ({ ownershipId, ownershipData, isNewOwnerModalOpen, onRequestClose}) => { 
+// const NewOwnerModal: React.FC<NewOwnerModalProps> = ({ ownershipId, ownershipData, isNewOwnerModalOpen, onRequestClose}) => { 
+const NewOwnerModal: React.FC<NewOwnerModalProps> = ({ ownershipData, isNewOwnerModalOpen, onRequestClose}) => { 
     // const [fetchedProduct, setFetchedProduct] = useState<any | null>(null);
     const [fetchedParticipants, setFetchedParticipants] = useState<any | null>(null);
     const { user1, setUser1, theOwnershipId, setTheOwnershipId } = useUserContext();

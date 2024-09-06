@@ -1,5 +1,7 @@
 import React from 'react';
 import { useUserContext } from '../contexts/UserContext';
+import { Signer, Contract } from 'ethers';
+// import { Contract } from 'web3';
 // import '../App.css';
 // import './App.css';
 
@@ -26,8 +28,8 @@ import { useUserContext } from '../contexts/UserContext';
 
 
 interface ProductEntryProps {
-  provider: any;
-  contract: any;
+  signer: Signer | null;
+  contract: Contract | null;
   address: string;
   name: string;
   pass: string;
@@ -64,18 +66,18 @@ interface ProductEntryProps {
   setIsParticipantModalOpen:React.Dispatch<React.SetStateAction<boolean>>; 
   setIsNewOwnerModalOpen:React.Dispatch<React.SetStateAction<boolean>>; 
   // fetchProvenanceData: () => Promise<void>;
-  addParticipant: (provider: any, contract: any, address: string, name: string, pass: string, 
+  addParticipant: (signer: Signer, contract: Contract, address: string, name: string, pass: string, 
     participantType:string, participantAddress: string, setIsParticipantModalOpen:React.Dispatch<React.SetStateAction<boolean>>, 
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,setParticipantData: React.Dispatch<React.SetStateAction<any[] | undefined>>,
     setName: React.Dispatch<React.SetStateAction<string>>,setPass: React.Dispatch<React.SetStateAction<string>>,
     setParticipantAddress: React.Dispatch<React.SetStateAction<string>>, setParticipantType: React.Dispatch<React.SetStateAction<string>>) => void;
-  addProduct: (provider: any, contract: any, address: string, ownerId: number, modelNumber: string, partNumber: string, 
+  addProduct: (signer: Signer, contract: any, address: string, ownerId: number, modelNumber: string, partNumber: string, 
     serialNumber: string, productCost: number, setIsProductModalOpen:React.Dispatch<React.SetStateAction<boolean>>,
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>, setProductData: React.Dispatch<React.SetStateAction<any[] | undefined>>, 
     setOwnerId: React.Dispatch<React.SetStateAction<number>>,  setModelNumber: React.Dispatch<React.SetStateAction<string>>,
     setSerialNumber: React.Dispatch<React.SetStateAction<string>>, setProductCost: React.Dispatch<React.SetStateAction<number>>,
     ) => void;
-  newOwner: (provider: any, contract: any, address: string, user1: number, user2: number, theProductId: number, theOwnershipId: number,
+  newOwner: (signer: Signer, contract: any, address: string, user1: number, user2: number, theProductId: number, theOwnershipId: number,
     setIsNewOwnerModalOpen:React.Dispatch<React.SetStateAction<boolean>>, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>, 
     setOwnershipData: React.Dispatch<React.SetStateAction<any[] | undefined>>, setProvenanceData: React.Dispatch<React.SetStateAction<any[] | undefined>>,
     setUser1: React.Dispatch<React.SetStateAction<number>>,setUser2: React.Dispatch<React.SetStateAction<number>>,
@@ -84,7 +86,7 @@ interface ProductEntryProps {
   ) => void;
 }
 const DataEntry: React.FC<ProductEntryProps> = ({
-  provider, 
+  signer, 
   contract,
   address,
   name,
@@ -128,8 +130,13 @@ const DataEntry: React.FC<ProductEntryProps> = ({
 }) => {
   const {user1, setUser1, theOwnershipId, setTheOwnershipId} = useUserContext();
   const handleAddParticipant = async () => {
+    if (!signer || !contract) {
+      console.error("Signer o contract no están inicializados");
+      return;
+    }
+
     addParticipant(
-      provider, 
+      signer, 
       contract, 
       address, 
       name,
@@ -147,8 +154,13 @@ const DataEntry: React.FC<ProductEntryProps> = ({
   };
 
   const handleAddProduct = async () => {
+    if (!signer || !contract) {
+      console.error("Signer o contract no están inicializados");
+      return;
+    }
+    
     addProduct(
-      provider, 
+      signer, 
       contract, 
       address, 
       ownerId,
@@ -167,8 +179,13 @@ const DataEntry: React.FC<ProductEntryProps> = ({
   };
 
   const handleNewOwner = async () => {
+    if (!signer || !contract) {
+      console.error("Signer o contract no están inicializados");
+      return;
+    }
+
     newOwner(
-      provider, // Asegúrate de que `provider` está definido o es pasado como prop
+      signer, 
       contract, 
       address,
       user1,

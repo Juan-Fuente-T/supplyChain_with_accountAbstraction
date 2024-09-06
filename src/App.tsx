@@ -1,5 +1,5 @@
 //https://www.linkedin.com/posts/pablockchain_productmanager-activity-7225404645286768640-6z8o?utm_source=share&utm_medium=member_desktop
-import { SetStateAction, useEffect, useState } from 'react';
+import { SetStateAction, useEffect, useMemo, useState } from 'react';
 import { useUserContext } from './contexts/UserContext';
 import ProductModal from './components/ProductModal';
 import ParticipantModal from './components/ParticipantModal';
@@ -15,7 +15,7 @@ import Web3 from "web3";
 import { Web3Auth } from "@web3auth/modal";
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 import { CHAIN_NAMESPACES, IProvider, UserInfo, WEB3AUTH_NETWORK } from "@web3auth/base";
-import { Contract, ethers, hashMessage, JsonRpcProvider, Wallet } from 'ethers';
+import { Contract, ethers, hashMessage, JsonRpcProvider, Provider, Signer, Wallet } from 'ethers';
 import { abi } from "./assets/abis/supplyChainModSigner";
 import { CONTRACT_ADDRESS } from "./assets/constants";
 import DataProvider from './components/DataProvider';
@@ -151,13 +151,15 @@ function App(): JSX.Element {
   // const [actualParticipantId, setActualParticipantId] = useState<any>(null);
   // const [actualOwnerIdData, setActualOwnerIdData] = useState<any>(0);
 
-  const [provider, setProvider] = useState<IProvider | null>(null);
+  const [web3authProvider, setWeb3authProvider] = useState<IProvider | null>(null);
+  const [web3authSigner, setWeb3authSigner] = useState<Signer | null>(null);
+  const [provider, setProvider] = useState<Provider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
-
-  const [loggedIn, setLoggedIn] = useState<boolean>(false);
-  const [user, setUser] = useState<Partial<UserInfo> | null>(null);
   const [address, setAddress] = useState<string>("");
   const [contract, setContract] = useState<Contract | null>(null);
+  
+  const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  const [user, setUser] = useState<Partial<UserInfo> | null>(null);
 
   const [isTraceabilityModalOpen, setIsTraceabilityModalOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -167,7 +169,15 @@ function App(): JSX.Element {
   const [addedProduct, setAddedProduct] = useState<Product | null>(null);
   
   const {theOwnershipId, setTheOwnershipId} = useUserContext();
+
+  const [isUploading, setIsUploading] = useState(false);
+  
+  const memoizedSigner= useMemo(() => signer, [signer]);
+  const memoizedAddress = useMemo(() => address, [address]);
+  const memoizedContract = useMemo(() => contract, [contract]);
+  const memoizedProvider = useMemo(() => provider, [provider]);
   // const app = initializeApp(firebaseConfig);
+  // const web3Provider = new Web3(web3auth.provider as any);
   
   useEffect(() => {
     const init = async () => {
@@ -176,11 +186,11 @@ function App(): JSX.Element {
         // Verificar si el web3auth ya está conectado
         if (!web3auth.connected && !web3auth.provider) {
           await web3auth.initModal();
-          setProvider(web3auth.provider);
+          setWeb3authProvider(web3auth.provider);
         }
         // Verificar si provider está inicializado
         if (web3auth.provider) {
-          setProvider(web3auth.provider);
+          setWeb3authProvider(web3auth.provider);
           const user: Partial<UserInfo> = await web3auth.getUserInfo();
           // console.log("USER", user);
           setUser(user);
@@ -191,11 +201,13 @@ function App(): JSX.Element {
           // console.log("w3aProvider", w3aProvider);
 
           const w3aSigner: ethers.JsonRpcSigner = await w3aProvider.getSigner();
-          setSigner(w3aSigner);
+          setWeb3authSigner(w3aSigner);
           // console.log("w3aSigner", w3aSigner);
+          console.log("Web3authProvider", web3authProvider);
 
           const web3 = new Web3(web3auth.provider as any);
-
+          console.log("web3", web3);
+;
           let initAddress: any = await web3.eth.getAccounts();
           initAddress = initAddress[0];
 
@@ -206,20 +218,34 @@ function App(): JSX.Element {
             setLoggedIn(true);
           }
 
-          const provider: JsonRpcProvider = new JsonRpcProvider(
-            process.env.REACT_APP_ARBITRUM_SEPOLIA_RPC_URL
-          );
-
+          // const provider: JsonRpcProvider = new JsonRpcProvider(
+          //   process.env.REACT_APP_ARBITRUM_SEPOLIA_RPC_URL
+          // );
+          ////////////////////BORRAR; ES PARA PRUEBAS LOCALES CON ANVIL SOLO///////////////
+          const provider: JsonRpcProvider = new JsonRpcProvider('http://localhost:8545');
+          setProvider(provider);
+          console.log("APP provider", provider);
+          //////////////////////////////////
+          // const signer: ethers.Wallet = new Wallet(
+          //   process.env.REACT_APP_WALLET_PRIVATE_KEY || "",
+          //   provider
+          // );
+          ////////////////////BORRAR; ES PARA PRUEBAS LOCALES CON ANVIL SOLO///////////////
+          setAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
           const signer: ethers.Wallet = new Wallet(
-            process.env.REACT_APP_WALLET_PRIVATE_KEY || "",
+            "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
             provider
           );
+          //////////////////////////////////
+          setSigner(signer);
+          console.log("Signer APP", signer);
           
-          console.log("INIT productData", productData);
-          
-          const initContract = new Contract(CONTRACT_ADDRESS, abi, signer);
+          // const initContract = new Contract(CONTRACT_ADDRESS, abi, signer);
+          ////////////////////BORRAR; ES PARA PRUEBAS LOCALES CON ANVIL SOLO///////////////
+          const initContract = new Contract("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", abi, signer);
+          //////////////////////////////////
           setContract(initContract);
-          // console.log("Contract", initContract);
+          console.log("ContractAPP", initContract);
 
           if (productId > 0 || provenanceData) {
             console.log("PRUEBA");
@@ -260,26 +286,27 @@ function App(): JSX.Element {
   }, [productId]);
 
   useEffect(() => {
-    if (signer && address && contract && provider) {
-        UploadNFT(signer, address, contract, provider)
-            .then(result => {
-              if(result){
-                console.log('NFT uploaded successfully:', result);
-              }else{
-                console.log('No uploaded NFT:', result);
-              }
-            })
-            .catch(error => {
-                console.error('Error uploading NFT:', error);
-            });
-    }
-}, [signer, address, contract, provider]);
+    const initializeAndUploadNFT = async () => {
+      if (memoizedSigner && memoizedAddress && memoizedContract && memoizedProvider && !isUploading) {
+        setIsUploading(true);
+        try {
+          const result = await UploadNFT(memoizedSigner, memoizedAddress, memoizedContract, memoizedProvider);
+          console.log('NFT uploaded successfully:', result);
+        } catch (error) {
+          console.error('Error uploading NFT:', error);
+        } finally {
+          setIsUploading(false);
+        }
+      }
+    };
+    initializeAndUploadNFT();
+  }, [memoizedSigner, memoizedAddress, memoizedContract, memoizedProvider, isUploading]);
 
   const login = async () => {
     // IMP START - Login
     const web3authProvider = await web3auth.connect();
     // IMP END - Login
-    setProvider(web3authProvider);
+    setWeb3authProvider(web3authProvider);
 
 
     if (web3auth.connected) {
@@ -560,7 +587,7 @@ function App(): JSX.Element {
               </div>
             </div>
             <DataEntry
-              provider={provider}
+              signer={signer}
               contract={contract}
               address={address}
               name={name}
@@ -595,7 +622,6 @@ function App(): JSX.Element {
               setIsProductModalOpen={setIsProductModalOpen}
               setIsParticipantModalOpen={setIsParticipantModalOpen}
               setIsNewOwnerModalOpen={setIsNewOwnerModalOpen}
-              // addParticipant={addParticipant}
               // fetchProvenanceData={fetchProvenanceData}
               addParticipant={addParticipant}
               addProduct={addProduct}
@@ -630,7 +656,8 @@ function App(): JSX.Element {
              <TraceabilityModal ids={provenanceData} isTraceabilityModalOpen={isTraceabilityModalOpen} productId={productId} productData={productData} provenanceData={provenanceData} onRequestClose={() => setIsTraceabilityModalOpen(false)} />
              <ProductModal isProductModalOpen={isProductModalOpen} productId={productId} productData={productData} onRequestClose={() => setIsProductModalOpen(false)} />
              <ParticipantModal isParticipantModalOpen={isParticipantModalOpen} participantId={participantId} participantData={participantData} onRequestClose={() => setIsParticipantModalOpen(false)} />
-             <NewOwnerModal isNewOwnerModalOpen={isNewOwnerModalOpen} ownershipId={ownershipId} ownershipData={ownershipData} onRequestClose={() => setIsNewOwnerModalOpen(false)} />
+             {/* <NewOwnerModal isNewOwnerModalOpen={isNewOwnerModalOpen} ownershipId={ownershipId} ownershipData={ownershipData} onRequestClose={() => setIsNewOwnerModalOpen(false)} /> */}
+             <NewOwnerModal isNewOwnerModalOpen={isNewOwnerModalOpen} ownershipData={ownershipData} onRequestClose={() => setIsNewOwnerModalOpen(false)} />
              {/* </div> */}
           </div>
         )}

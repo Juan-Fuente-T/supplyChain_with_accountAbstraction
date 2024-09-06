@@ -9,4 +9,6 @@ export const CONTRACT_ADDRESS = '0x3d51cE57331755130F52D992F1Bc13cC5cB5793e' //s
 // export const TOKEN_CONTRACT_ADDRESS = '0x3aa399775AE7F84b2965C1Ba597E6623CD65Ca0d' //suplly chain TOKEN Sepolia
 // export const TOKEN_CONTRACT_ADDRESS = '0xCAD740341b2024fe294A78E477143055122ce8F6' //suplly chain TOKEN ArbitrumSepolia
 // export const TOKEN_CONTRACT_ADDRESS = '0x2e5590dfD7f1C51c040f2Fc5B0bBe9764FF6F8F7' //suplly chain TOKEN Sepolia Mejorado
-export const TOKEN_CONTRACT_ADDRESS = '0x109eceB71d0b5fde5053E38a28886cA1A0253967' //suplly chain TOKEN ArbitrumSepolia Mejorado ACTUAL
+// export const TOKEN_CONTRACT_ADDRESS = '0x109eceB71d0b5fde5053E38a28886cA1A0253967' //suplly chain TOKEN ArbitrumSepolia Mejorado 
+// export const TOKEN_CONTRACT_ADDRESS = '0x5deb1521Aa229b84A6f0759Ccab840576eD89ef3' //suplly chain TOKEN ArbitrumSepolia CON Onlyowner Con Firma
+export const TOKEN_CONTRACT_ADDRESS = '0xb4433d8fe8108e14fdb3dce06c2180f84732c32b' //suplly chain TOKEN ArbitrumSepolia SIN Onlyowner Con Firma ACTUAL

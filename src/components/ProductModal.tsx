@@ -2,16 +2,16 @@ import React from 'react';
 import Modal from 'react-modal';
 import formatDate  from  '../utils/FormatDate';
 
-type Product = {
-    id: string;
-    modelNumber: string;
-    serialNumber: string;
-    participantName: string;
-    participantType: string;
-    productCost: number;
-    mfgTimeStamp: Date;
-    participantAddress: string;
-  };
+// type Product = {
+//     id: string;
+//     modelNumber: string;
+//     serialNumber: string;
+//     participantName: string;
+//     participantType: string;
+//     productCost: number;
+//     mfgTimeStamp: Date;
+//     participantAddress: string;
+//   };
 
   type ProductModalProps = {
     isProductModalOpen: boolean;

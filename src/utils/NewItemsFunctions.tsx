@@ -1,6 +1,6 @@
 
 import { contract } from 'web3/lib/commonjs/eth.exports';
-import { Contract, ethers, hashMessage, JsonRpcProvider, Wallet } from 'ethers';
+import { Contract, ethers, hashMessage, JsonRpcProvider, Signer, Wallet } from 'ethers';
 import { toast } from 'react-toastify';
 
 import { addItemToLocalStorage } from './StorageFuntions';
@@ -9,8 +9,8 @@ import { signMessage} from '../utils/SignMessageFunction';
 
 
 export const addParticipant = async (
-  provider: any,
-  contract: any,
+  signer: Signer,
+  contract: Contract,
   address: string,
   name: string,
   pass: string,
@@ -25,11 +25,12 @@ export const addParticipant = async (
   setParticipantAddress: React.Dispatch<React.SetStateAction<string>>,
 ) => {
         try {
+          console.log("SIgner en NEWItems AddParticipant", signer);
           setIsLoading(true);
           const message = "Hola, TraZableDLT pagará el gas por ti";
           const hash = hashMessage(message);
           // console.log("HASH", hash);
-          const signature = await signMessage(message, provider);
+          const signature = await signMessage(message, signer);
           // console.log("SIGNATURE", signature);
     
           if (!contract) {
@@ -77,8 +78,8 @@ export const addParticipant = async (
       };
 
       export const addProduct = async (
-        provider: any,
-        contract: any,
+        signer: Signer,
+        contract: Contract,
         address: string,
         ownerId: number, 
         modelNumber: string,
@@ -98,7 +99,7 @@ export const addParticipant = async (
           setIsLoading(true);
           const message = "Hola, TraZableDLT pagará el gas por ti";
           const hash = hashMessage(message);
-          const signature = await signMessage(message, provider);
+          const signature = await signMessage(message, signer);
     
           if (!contract) {
             throw new Error("Contract not found");
@@ -160,8 +161,8 @@ export const addParticipant = async (
       // console.log("Product Data", productData);
     
       export const newOwner = async (
-        provider: any,
-        contract: any,
+        signer: Signer,
+        contract: Contract,
         address: string,
         user1: number, 
         user2: number, 
@@ -182,7 +183,7 @@ export const addParticipant = async (
           setIsLoading(true);
           const message = "Hola, TraZableDLT pagará el gas por ti";
           const hash = hashMessage(message);
-          const signature = await signMessage(message, provider);
+          const signature = await signMessage(message, signer);
     
           if (!contract) {
             throw new Error("Contract not found");

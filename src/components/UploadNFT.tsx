@@ -4,13 +4,15 @@
 import { uploadJSONToIPFS } from "../utils/Pinata";
 import { supplyChainTokenABI } from '../assets/abis/supplyChainTokenABI';
 // import { useLocation } from "react-router";
-import { Contract, ethers, hashMessage } from 'ethers';
+import { Contract, ethers, hashMessage, Provider, Signer } from 'ethers';
 import { TOKEN_CONTRACT_ADDRESS } from "../assets/constants";
 // import { Address } from "web3";
 import { toast } from "react-toastify";
 import { getTransmisionData } from "../utils/TransmisionData";
 import { signMessage } from "../utils/SignMessageFunction";
 import { IProvider } from "@web3auth/base";
+import Web3 from "web3";
+import { useEffect } from "react";
 
 type TransmisionData = {
     Fecha: string;
@@ -18,6 +20,21 @@ type TransmisionData = {
     Clase: string;
 };
 
+
+// Configura tu proveedor y tu clave privada
+// const provider = new ethers.JsonRpcProvider('https://arb-sepolia.g.alchemy.com/v2/eG2VFhUWjEh0nGElEd436hbZGqJM7uKu');
+// const privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+// const wallet = new ethers.Wallet(privateKey, provider);
+
+// // Mensaje a firmar
+// const message = "Hola, Trazable DLT pagará el gas por ti";
+// const _hash = ethers.hashMessage(message);
+
+// // Firma el mensaje
+// const signature = signMessage(message, provider);
+// console.log("Signature:", signature);
+//   console.log("Hash:", _hash);
+//   console.log("Signature:", signature);
 
 // export async function UploadNFT(signer: Signer, address: string) {    // const [transmisionData, updateTransmisionData] = useState<{ Fecha: string; Participante: string; Clase: string; }[]>([]);
 //     // const [fileURL, setFileURL] = useState<string | undefined>("");
@@ -29,46 +46,82 @@ type TransmisionData = {
 //     console.log("tokenContract",tokenContract);
 
 // Función para simular la lógica
-async function testProductInfoHandling() {
-    // Datos simulados para imitar lo que se recibiría de la blockchain
-    const simulatedProductInfo = new Proxy(
-        ["12", "120", "Bob", "Supplier", BigInt(1200), BigInt(1722449801), "0xe67F18c5064f12470Efc943798236edF45CF3Afb"],
-        {
-            get(target, prop, receiver) {
-                console.log(`Accessing property ${String(prop)}`);
-                return Reflect.get(target, prop, receiver);
-            }
-        }
-    );
 
-    // Simulando la lógica que usas en tu código
-    const supplierType = String(simulatedProductInfo[3]).trim();
-    console.log("Supplier Type:", supplierType);
 
-    if (supplierType === "Supplier") {
-        console.log(`Product has been transferred to Supplier`);
-    } else {
-        console.log(`Product has been transferred to another participant type: ${supplierType}`);
-    }
-}
 
-// Llamar a la función para probar
-testProductInfoHandling();
+// async function testProductInfoHandling() {
+//     // Datos simulados para imitar lo que se recibiría de la blockchain
+//     const simulatedProductInfo = new Proxy(
+//         ["12", "120", "Bob", "Supplier", BigInt(1200), BigInt(1722449801), "0xe67F18c5064f12470Efc943798236edF45CF3Afb"],
+//         {
+//             get(target, prop, receiver) {
+//                 console.log(`Accessing property ${String(prop)}`);
+//                 return Reflect.get(target, prop, receiver);
+//             }
+//         }
+//     );
 
-export async function UploadNFT(signer: ethers.Signer, address: string, contract: Contract, provider: IProvider): Promise<boolean> {
+//     // Simulando la lógica que usas en tu código
+//     const supplierType = String(simulatedProductInfo[3]).trim();
+//     console.log("Supplier Type:", supplierType);
+
+//     if (supplierType === "Supplier") {
+//         console.log(`Product has been transferred to Supplier`);
+//     } else {
+//         console.log(`Product has been transferred to another participant type: ${supplierType}`);
+//     }
+// }
+
+// // Llamar a la función para probar
+// testProductInfoHandling();
+let isProcessing = false;
+
+export async function UploadNFT(signer: ethers.Signer, address: string, contract: Contract, provider: Provider): Promise<boolean> {
+    // Elimina todos los listeners previos para evitar duplicados
+    contract.removeAllListeners('TransferOwnership');console.log("Signer en UploadNFT:", signer);
+    
+    const existingListeners = contract.listeners('TransferOwnership');
     // const [productId, setProductId] = useState<ethers.BigNumberish | undefined>(undefined);
     let productId: ethers.BigNumberish | undefined;
     // Variable para evitar duplicar el procesamiento de eventos
-    let isProcessing = false;
-    const tokenContract = new Contract(TOKEN_CONTRACT_ADDRESS, supplyChainTokenABI, signer);
+    ////////////////////BORRAR; ES PARA PRUEBAS LOCALES CON ANVIL SOLO///////////////
+    const tokenContract = new Contract("0x5FbDB2315678afecb367f032d93F642f64180aa3", supplyChainTokenABI, signer);
+    // const tokenContract = new Contract(TOKEN_CONTRACT_ADDRESS, supplyChainTokenABI, signer);
     console.log("UP_tokenContract", tokenContract);
-    
-    return new Promise(async (resolve, reject) => {
+    console.log("UP_Contract", contract);
+    //////////////////////////////////BORRAR////////////////////////////////////
+// const _provider = new ethers.JsonRpcProvider(process.env.REACT_APP_ARBITRUM_SEPOLIA_RPC_URL);
+    const privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+// const wallet = new ethers.Wallet(privateKey, _provider);
+const localWallet = new ethers.Wallet(privateKey);
+const _address = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+// Obtén el signer del provider
+// const _signer = await _provider.getSigner(_address);
+
+// Firma el mensaje
+    const _message = "Hola, Trazable DLT pagará el gas por ti";
+    // const signature = await _signer.signMessage(_message);
+    const signature = await localWallet.signMessage(_message);
+
+    if (!signature) {
+        throw new Error("Failed to sign message");
+    }
+// Mensaje a firmar
+const _hash = ethers.hashMessage(_message);
+
+// Firma el mensaje
+// const signature = await signMessage(message, _provider);
+  console.log("Hash:", _hash);
+  console.log("Signature:", signature);
+  ///////////////////////////////////////////////////////////////////////////   
+  return new Promise(async (resolve, reject) => {
+    console.log("Signer en Promise:", signer);
         try {
-        // contract.on('TransferOwnership', async (_productId: ethers.BigNumberish) => {
-            // const listener = async (_productId: ethers.BigNumberish) => {
+            // contract.on('TransferOwnership', async (_productId: ethers.BigNumberish) => {
+                // const listener = async (_productId: ethers.BigNumberish) => {
             
-            // const _productId = 12;
+            // const productId = 12;
+            if ((await existingListeners).length === 0) {
             console.log("El LISTENER debe activarse ahora");
             contract.on('TransferOwnership', async (_productId: ethers.BigNumberish) => {
             productId = _productId;
@@ -79,8 +132,8 @@ export async function UploadNFT(signer: ethers.Signer, address: string, contract
          
             try {
                 // Obtener la información del producto
-                const productInfo = await contract.getProduct(_productId);
-                const ownershipIds = await contract.getProvenance(_productId);
+                const productInfo = await contract.getProduct(productId);
+                const ownershipIds = await contract.getProvenance(productId);
                 console.log("UP_productInfo",productInfo);
                 console.log("UP__ownershipIds ",ownershipIds );
                 const { transmisionDataArray, filteredIds } = await getTransmisionData(ownershipIds);
@@ -89,24 +142,27 @@ export async function UploadNFT(signer: ethers.Signer, address: string, contract
                 const supplierType = String(productInfo[3]).trim();
 
                 console.log("ProductTYPE", String(productInfo[3]).trim());
-                // if (supplierType === "Supplier") {
-                if (supplierType === "Consumer") {
+                if (supplierType === "Supplier") {
+                // if (supplierType === "Consumer") {
                 // if (productInfo[3] === "Supplier") {
-                // if (productInfo[3] === 'Consumer') {
-                    console.log(`Product ${productId?.toString()} has been transferred to consumer`);
-                    if(productId !== undefined){
-                        const metadataCid = await uploadMetadataToIPFS(ownershipIds, productId, transmisionDataArray);
+                    // if (productInfo[3] === 'Consumer') {
+                        console.log(`Product ${productId?.toString()} has been transferred to consumer`);
+                        if(productId !== undefined){
+                            const metadataCid = 'QmPaXyVvEAsef1JERQCue7pbHtkXDHHzXWcquJW4V7aVti';
+                        // const metadataCid = await uploadMetadataToIPFS(ownershipIds, productId, transmisionDataArray);
 
                         // Subir los metadatos a IPFS y emitir NFT
                         console.log("UP__metadataCid",metadataCid);
-                        if (metadataCid !== -1 && metadataCid !== undefined) {
+                        // if (metadataCid !== -1 && metadataCid !== undefined) {
+                            if ( metadataCid !== undefined) {
                             
                             // Estas dos lineas ya no son necesarias, se realiza en la propia funcion en Pinata.tsx
                             // const parts = metadataURL.split('/'); // Se divide la URL en partes usando '/' como delimitador
                             // const cid = parts[parts.length - 1]; // Se devuelve la última parte, que debería ser el CID
                         
                             // const success = true;
-                            const success = await emitNFT(tokenContract, productId, metadataCid, address, filteredIds);
+                            console.log("Signer justo antes de emitNFT", signer);
+                            const success = await emitNFT(tokenContract, productId, metadataCid, address, filteredIds, signer);
                             if (success) {
                                 console.log('NFT emitted successfully');
                                 // Eliminar las ownerships filtradas del localStorage
@@ -130,13 +186,16 @@ export async function UploadNFT(signer: ethers.Signer, address: string, contract
                     isProcessing = false; // Permite procesar el siguiente evento
                 }       
         });
-        
-            console.log("Listener registrado correctamente");
+        console.log("Listener registrado correctamente");
+            } else {
+                console.log("Listener ya estaba registrado.");
+            }
         } catch (error) {
             console.error('Error registrando el listener:', error);
             reject(false);
         }
     });
+
 
 
  
@@ -250,18 +309,51 @@ export async function UploadNFT(signer: ethers.Signer, address: string, contract
         productId: ethers.BigNumberish,
         metadataCid: string,
         address: string, 
-        filteredIds: string[]
+        filteredIds: string[],
+        signer: Signer
     ): Promise<boolean> {
         if (!tokenContract || !metadataCid || !address || !productId) return false;
-    
+        
+        
         try {
+            console.log("Signer en MINT:", signer);
             console.log("Address conectada que usa la Dapp: ", address);
             const message = "Hola, Trazable DLT pagará el gas por ti";
             const hash = hashMessage(message);
-            const signature = await signMessage(message, provider);
+            const signature = await signMessage(message, signer);
+            try {
+                // Estimar el gas
+                const estimatedGas = await tokenContract.estimateGas('mint', [
+                    hash,
+                    signature,
+                    address,
+                    productId,
+                    1,
+                    metadataCid,
+                ]);
+                console.log('Estimated Gas:', estimatedGas.toString());
+            } catch (error) {
+                console.error('Error estimating gas:', error);
+            }
+            
+            try {
+                // Realizar una llamada estática
+                const result = await tokenContract.callStatic('mint', [
+                    hash,
+                    signature,
+                    address,
+                    productId,
+                    1,
+                    metadataCid,
+                ]);
+                console.log('Static call result:', result);
+            } catch (error) {
+                console.error('Static call error:', error);
+            }
             console.log("Hash", hash);
             console.log("address", address);
             console.log("Signature", signature);
+            console.log("DATOS para MINT",hash, signature, address, productId, 1, metadataCid);
             const tx = await tokenContract.mint(hash, signature, address, productId, 1, metadataCid);
             await tx.wait();
             console.log('NFT emitted successfully');
@@ -270,7 +362,7 @@ export async function UploadNFT(signer: ethers.Signer, address: string, contract
             console.log('NFT TX HASHmessage', tx.hashMessage);
             toast("Successfully listed your NFT!");
             // Eliminar las ownerships del localStorage
-            filteredIds.forEach(id => localStorage.removeItem(id));
+            // filteredIds.forEach(id => localStorage.removeItem(id));
             return true;
         } catch (error) {
             toast.error('Emitting NFT failed');

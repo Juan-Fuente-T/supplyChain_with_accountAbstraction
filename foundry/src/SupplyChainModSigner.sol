@@ -4,7 +4,7 @@ pragma solidity >=0.8.20;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 using ECDSA for bytes32;
 
-contract supplyChain {
+contract SupplyChain {
     //CAMBIAR A 1 PARA EVITAR ERRORE Y VOLVER A DESPLEGAR
     uint256 public product_id = 1;   // Product ID
     uint256 public participant_id = 1;   // Participant ID
