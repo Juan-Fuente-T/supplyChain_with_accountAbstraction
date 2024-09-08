@@ -332,6 +332,7 @@ cast call $CONTRACT_ADDRESS "greet()(string)" (call para leer de la blockchain)
 ##### To test that the greeting has been updated, run the call command again:
 
 cast call $CONTRACT_ADDRESS "greet()(string)"
+cast call 0x5FbDB2315678afecb367f032d93F642f64180aa3 "totalSupply()(uint256)"
 
 ##### For transactions, we can use cast send, passing in a private key and any arguments:
 
@@ -524,3 +525,9 @@ Puedes agregar también una clave privada si deseas, aunque no es necesario para
 Una vez que hayas ingresado la URL, Remix IDE se conectará a Anvil.
 
 Ahora podrás desplegar contratos inteligentes y realizar transacciones como lo harías en una red de Ethereum, pero en tu entorno local proporcionado por Anvil.
+
+## Conectar Foundry a la Dapp
+
+- Configurar el proveedor de Anvil (asegúrate que Anvil está corriendo en http://localhost:8545)
+
+const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');

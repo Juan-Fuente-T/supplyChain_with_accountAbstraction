@@ -516,12 +516,12 @@ function App(): JSX.Element {
   };
   const loggedInView = (
     <>
-      <div className="flex-container">
-      <div>
+      <div className="flex">
+      {/* <div>
       <button onClick={getUserInfo} className="card">
             Get User Info
           </button>
-        </div> 
+        </div>  */}
         {/* <div>
           <button onClick={getAccounts} className="card">
             Get Accounts
@@ -540,7 +540,7 @@ function App(): JSX.Element {
       <div> 
       {/* <button onClick={logout} className="card"> */}
 
-      <button className="bg-[#ca0372] p-2 text-xl font-bold text-center w-1/5 m-auto mt-4 mb-4 border-2 border-stone-800 rounded-md hover:bg-[#ca0372] hover:opacity-50  transition-all disabled:opacity-80 text-xl font-semibold " onClick={logout}>
+      <button className="flex bg-[#ca0372] p-2 text-xl justify-center font-bold text-center w-3/5 sm:w-48 m-auto mt-4 mb-4 border-2 border-stone-800 rounded-md hover:bg-[#ca0372] hover:opacity-50  transition-all disabled:opacity-80 text-xl font-semibold " onClick={logout}>
         Log Out
       </button>
       </div>
@@ -575,16 +575,20 @@ function App(): JSX.Element {
             {/* <button onClick={() => handleClick(productId, "product")}>RECUPERAR</button>
             <button onClick={() => handleClick(participantId, "participant")}>PART</button>
             <button onClick={() => handleClick(ownershipId, "ownership")}>OWNER</button> */}
-            <div className="flex flex-row gap-5 w-full justify-center items-center">
+            <div className="flex px-2 flex-row gap-3 w-full justify-center items-center">
               {/* <img src={user?.profileImage} alt="TraZableDLT" /> */}
-              <div className="flex flex-row gap-3 items-left">
-                <h2 className=" bg-[#11c5c5] border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-[#292d67]">
+              <div className="flex w-full flex-col xl:flex-row gap-2 items-left">
+                <div className="flex border-2 gap-2 w-full">
+                <h2 className=" bg-[#11c5c5] w-full border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-[#292d67] leading-none md:leading-normal">
                   name: {user?.name}</h2>
-                <h2 className=" bg-[#11c5c5] border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-[#292d67]">
-                  email: {user?.email}</h2>
-                <h2 className=" bg-[#11c5c5] border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-[#292d67]">
+                <h2 className=" bg-[#11c5c5] w-full border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-[#292d67] leading-none md:leading-normal">
+                  email: {user?.email}</h2> 
+                </div>
+                <div className="flex w-full">
+                <h2 className=" bg-[#11c5c5] w-full border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-[#292d67] leading-none md:leading-normal">
                   cuenta: {address}</h2>
               </div>
+                </div>
             </div>
             <DataEntry
               signer={signer}
