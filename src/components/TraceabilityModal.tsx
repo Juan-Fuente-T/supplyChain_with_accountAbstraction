@@ -1,139 +1,194 @@
-import React, { useEffect, useState } from 'react';
-import Modal from 'react-modal';
-//COLORES: Azul bg-[#292d67] Rojo [#ca0372]
+import React, { useEffect, useState } from "react";
+import Modal from "react-modal";
+
+/**
+ * Represents the structure of an ownership record.
+ */
 type Ownership = {
   id: string;
   productId: number;
   productOwnerId: number;
   productOwnerAddress: string;
   trxTimeStamp: string;
-  };
-  type Participant = {
-    id: string;
-    name: string;
-    participantType: string;
-  };
-  type Product = {
-    id: string | '';
-    modelNumber: string | '';
-    serialNumber: string | '';
-    participantName: string | '';
-    participantType: string | '';
-    productCost: number | undefined;
-    mfgTimeStamp: string | '';
-    participantAddress: string | '';
-  }
+};
 
-  type TraceabilityModalProps = {
-    ids: number[];
-    isTraceabilityModalOpen: boolean;
-    onRequestClose: () => void;
-    productId: number;
-    productData: Product[];
-    provenanceData: string[];
-  };
+/**
+ * Represents the structure of a participant.
+ */
+type Participant = {
+  id: string;
+  name: string;
+  participantType: string;
+};
 
+/**
+ * Represents the structure of a product
+ */
+type Product = {
+  id: string | "";
+  modelNumber: string | "";
+  serialNumber: string | "";
+  participantName: string | "";
+  participantType: string | "";
+  productCost: number | undefined;
+  mfgTimeStamp: string | "";
+  participantAddress: string | "";
+};
 
-  const TraceabilityModal: React.FC<TraceabilityModalProps> = ({ ids, isTraceabilityModalOpen, productId, productData, provenanceData, onRequestClose }) => {
-    const [ownerships, setOwnerships] = useState<Ownership[]>([]);
-    // const [participants, setParticipants] = useState<Map<number, Participant>>(new Map());
-    const [participants, setParticipants] = useState<Participant[]>([]);
-    // const [productOwnerIds, setPproductOwnerIds] = useState<number[]>([]);
-    // console.log("PPprovenanceData",provenanceData);
-    
-    let _participants: (string | null)[] = [];
-    useEffect(() => {
-      if (isTraceabilityModalOpen) {
-        const allOwnershipIds: string[] = JSON.parse(localStorage.getItem('ownershipIds') || '[]');
-        const allParticipantsIds: string[] = JSON.parse(localStorage.getItem('participantIds') || '[]');
-        
-        const filteredIds = allOwnershipIds.filter(id => ids?.some(num => id.startsWith(`ownership-${num}-`)));
-        
-        const fetchedOwnerships = filteredIds.map(id => {
+/**
+ * Props for the TraceabilityModal component.
+ */
+type TraceabilityModalProps = {
+  ids: number[] /** Array of IDs related to the traceability */;
+  isTraceabilityModalOpen: boolean /** Controls whether the modal is open */;
+  onRequestClose: () => void /** Function to close the modal */;
+  productId: number /** ID of the product */;
+  productData: Product[] /** Array of product data */;
+  provenanceData: string[] /** Array of provenance data */;
+};
+
+/**
+ * TraceabilityModal Component
+ *
+ * This component displays a modal with traceability information for a product,
+ * including ownership history and participant details.
+ *
+ * @param props - The props of type TraceabilityModalProps
+ * @returns A React Functional Component
+ */
+const TraceabilityModal: React.FC<TraceabilityModalProps> = ({
+  ids,
+  isTraceabilityModalOpen,
+  productId,
+  productData,
+  provenanceData,
+  onRequestClose,
+}) => {
+  const [ownerships, setOwnerships] = useState<Ownership[]>(
+    []
+  ); /** State to store ownership data */
+  const [participants, setParticipants] = useState<Participant[]>(
+    []
+  ); /** State to store participant data */
+
+  /** Temporary array to store participant data as strings */
+  let _participants: (string | null)[] = [];
+
+  useEffect(() => {
+    if (isTraceabilityModalOpen) {
+      /** Get ownership IDs from localStorage */
+      const allOwnershipIds: string[] = JSON.parse(
+        localStorage.getItem("ownershipIds") || "[]"
+      );
+      /** Get participants IDs from localStorage */
+      const allParticipantsIds: string[] = JSON.parse(
+        localStorage.getItem("participantIds") || "[]"
+      );
+
+      /** Filter ownership IDs based on the provided ids */
+      const filteredIds = allOwnershipIds.filter((id) =>
+        ids?.some((num) => id.startsWith(`ownership-${num}-`))
+      );
+      /** Fetch ownership data */
+      const fetchedOwnerships = filteredIds
+        .map((id) => {
           const ownershipData = localStorage.getItem(id);
           return ownershipData ? JSON.parse(ownershipData) : null;
-        }).filter((ownership): ownership is Ownership => ownership !== null);
-        
-        setOwnerships(fetchedOwnerships);
-        /////////////
-        // Obtener los productIds de fetchedOwnerships
-        const productOwnerIds = fetchedOwnerships.map(ownership => ownership.productOwnerId);
-        // Filtrar participantIds basados en los productIds
-        // console.log("productOwnerIds", productOwnerIds); // Verifica los productIds aquí
-        const filteredParticipants = allParticipantsIds.filter(id => {
-          return productOwnerIds.some(productOwnerId => id.startsWith(`participant-${productOwnerId}-`));
-        });
-        // console.log("XXfilteredParticipants", filteredParticipants);
-        ////////////
-        // const filteredParticipants = allParticipantsIds.filter(id => ids.some(num => id.startsWith(`participant-${fetchedOwnerships.productOwnerId}`)));
-        // console.log("XXfilteredParticipants",filteredParticipants)
-        // const fetchedParticipants = filteredParticipants.map(id => {
-          //   const participantData = localStorage.getItem(id);
-          //   console.log("XXfetchedOwnerships",participantData)
-          //   return participantData ? JSON.parse(participantData) : null;
-          // }).filter((participant): participant is Participant => participant !== null);
-          // setParticipants(fetchedParticipants);
-          // console.log("XXfetchedParticipants",fetchedParticipants);
-          
-          
-          // Obtener los datos de los participantes
-          const fetchedParticipants = filteredParticipants.map(id => {
-            const participantData = localStorage.getItem(id);
-            _participants.push(participantData);
-            // console.log("XXfetchedParticipantData", participantData);
-            return participantData ? JSON.parse(participantData) as Participant  : null;
-          }).filter((participant): participant is Participant => participant !== null);
-          
-          setParticipants(fetchedParticipants);
-          // console.log("XXfetchedParticipants", fetchedParticipants);
-          // console.log("XXPARTICIPANTs", _participants);
-          // console.log("XXPARTICIPANTs", participants);
-        }
-}, [ids, isTraceabilityModalOpen]);
+        })
+        .filter((ownership): ownership is Ownership => ownership !== null);
 
-return (
-  // <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-  <div >
-  
-    <Modal className="modal-custom" 
-  // <Modal className="m-auto bg-opacity-60 flex flex-wrap flex-col justify-center p-4 px-12  mx-4 w-min-1/3 w-fit bg-gray-50 border-2 border-stone-800 rounded-md" 
-  isOpen={isTraceabilityModalOpen} onRequestClose={onRequestClose} contentLabel="Product Traceability Details" appElement={document.getElementById('root') || undefined}>
-    <h2 className="py-1 px-2 w-fit  bg-[#ca0372] text-white border-2 border-stone-800 p-2 rounded-md text-l font-semibold">
-      Trazabilidad del producto {productId}
-    </h2>
-    <p className="mt-2 text-white">Lista de transferencias: {provenanceData?.map(num => num.toString()).join(', ')}</p>
-    {ownerships.length === 0 ? (
-      <p>No hay transferencias de producto.</p>
-    ) : (
-      <div className="flex justify-between flex-wrap gap-x-4 gap-y-4 mx-auto max-w-full">
-        {ownerships.map((ownership, index) => {
-          const correspondingParticipant = participants.find(participant => participant.id.startsWith(`participant-${ownership.productOwnerId}-`));
+      setOwnerships(fetchedOwnerships);
+      /** Get productOwnerIds from fetchedOwnerships */
+      const productOwnerIds = fetchedOwnerships.map(
+        (ownership) => ownership.productOwnerId
+      );
 
-          return (
-            <div key={index} className="bg-gray-100 my-4 border border-gray-300 rounded-lg p-4 w-64 shadow-md">
-              <p>Fecha: {ownership?.trxTimeStamp}</p>
-              {correspondingParticipant ? (
-                <>
-                  <p>{correspondingParticipant.name}</p>
-                  <p>{correspondingParticipant.participantType}</p>
-                </>
-              ) : (
-                <p>No se encontró el participante correspondiente.</p>
-              )}
-              <hr className="my-2" />
-            </div>
-          );
-        })}
-      </div>
-    )}
-    <div className="flex flex-col justify-self-end">
-    <button onClick={onRequestClose} className="px-3 bg-[#ca0372] text-white self-end border-2 border-stone-800 rounded-md hover:bg-white hover:text-[#292d67] transition-all disabled:opacity-80 text-5xl font-semibold">
-      x
-    </button>
+      /** Filter participant IDs based on productOwnerIds */
+      const filteredParticipants = allParticipantsIds.filter((id) => {
+        return productOwnerIds.some((productOwnerId) =>
+          id.startsWith(`participant-${productOwnerId}-`)
+        );
+      });
+
+      /** Fetch participant data */
+      const fetchedParticipants = filteredParticipants
+        .map((id) => {
+          const participantData = localStorage.getItem(id);
+          _participants.push(participantData);
+          return participantData
+            ? (JSON.parse(participantData) as Participant)
+            : null;
+        })
+        .filter(
+          (participant): participant is Participant => participant !== null
+        );
+
+      setParticipants(fetchedParticipants);
+    }
+  }, [ids, isTraceabilityModalOpen]);
+
+  return (
+    // <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div>
+      <Modal
+        className="modal-custom"
+        // <Modal className="m-auto bg-opacity-60 flex flex-wrap flex-col justify-center p-4 px-12  mx-4 w-min-1/3 w-fit bg-gray-50 border-2 border-stone-800 rounded-md"
+        isOpen={isTraceabilityModalOpen}
+        onRequestClose={onRequestClose}
+        contentLabel="Product Traceability Details"
+        appElement={document.getElementById("root") || undefined}
+      >
+        <h2 className="p2 w-fit  bg-[#ca0372] text-white border-2 border-stone-800 p-2 rounded-md text-base md:text-l font-semibold">
+          Trazabilidad del producto {productId}
+        </h2>
+        <p className="mt-2 text-white">
+          Lista de transferencias:{" "}
+          {provenanceData?.map((num) => num.toString()).join(", ")}
+        </p>
+        {ownerships.length === 0 ? (
+          <p className="mb-2 text-white">No hay transferencias de producto.</p>
+        ) : (
+          <div className="flex justify-between flex-wrap gap-x-4 gap-y-4 mx-auto max-w-full">
+            {ownerships.map((ownership, index) => {
+              const correspondingParticipant = participants.find(
+                (participant) =>
+                  participant.id.startsWith(
+                    `participant-${ownership.productOwnerId}-`
+                  )
+              );
+
+              return (
+                <div
+                  key={index}
+                  className="bg-gray-100 my-4 border border-gray-300 rounded-lg p-4 w-64 shadow-md"
+                >
+                  <p>Fecha: {ownership?.trxTimeStamp}</p>
+                  {correspondingParticipant ? (
+                    <>
+                      <p>{correspondingParticipant.name}</p>
+                      <p>{correspondingParticipant.participantType}</p>
+                    </>
+                  ) : (
+                    <p>No se encontró el participante correspondiente.</p>
+                  )}
+                  <hr className="my-2" />
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <div className="flex flex-col justify-self-end">
+          <button
+            onClick={onRequestClose}
+            className="px-3 bg-[#ca0372] text-white self-end border-2 border-stone-800 rounded-md hover:bg-white hover:text-[#292d67] transition-all disabled:opacity-80 text-5xl font-semibold"
+          >
+            x
+          </button>
+        </div>
+      </Modal>
     </div>
-  </Modal>
-  </div>
-);
+  );
 };
 export default TraceabilityModal;
 
+//COLORES del modal: Azul bg-[#292d67] Rojo [#ca0372]

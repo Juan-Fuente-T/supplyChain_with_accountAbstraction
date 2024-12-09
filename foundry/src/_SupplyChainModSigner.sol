@@ -2,9 +2,9 @@
 pragma solidity >=0.8.20;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+using ECDSA for bytes32;
 
 contract SupplyChain {
-    using ECDSA for bytes32;
     //CAMBIAR A 1 PARA EVITAR ERRORES Y VOLVER A DESPLEGAR
     uint256 public product_id = 1;   // Product ID
     uint256 public participant_id = 1;   // Participant ID
@@ -17,9 +17,8 @@ contract SupplyChain {
         string serialNumber;
         string participantName;
         string participantType;
-        uint64 participantId;
-        uint64 cost;
-        uint64 mfgTimeStamp; //uint64 permite hasta 18,446,744,073,709,551,615
+        uint256 cost;
+        uint256 mfgTimeStamp;
         address productOwnerAddress;
     }
 
@@ -97,11 +96,11 @@ contract SupplyChain {
     function addProduct(address _signer,
                         bytes32 _hash, 
                         bytes memory _signature,
-                        uint64 _productOwnerId,
+                        uint256 _productOwnerId,
                         string memory _modelNumber,
                         string memory _partNumber,
                         string memory _serialNumber,
-                        uint64 _productCost) public verifySignature(_signer, _hash, _signature) returns (uint256) {
+                        uint256 _productCost) public verifySignature(_signer, _hash, _signature) returns (uint256) {
         if(keccak256(abi.encodePacked(participants[_productOwnerId].participantType)) == keccak256("Manufacturer")) {
             uint256 productId = product_id++;
 
@@ -110,9 +109,8 @@ contract SupplyChain {
             products[productId].serialNumber = _serialNumber;
             products[productId].participantName= participants[_productOwnerId].userName;
             products[productId].participantType = participants[_productOwnerId].participantType;
-            products[productId].participantId = _productOwnerId;
             products[productId].cost = _productCost;
-            products[productId].mfgTimeStamp = uint64(block.timestamp);
+            products[productId].mfgTimeStamp = uint256(block.timestamp);
             products[productId].productOwnerAddress = participants[_productOwnerId].participantAddress;
 
             return productId;
@@ -123,30 +121,28 @@ contract SupplyChain {
 
 
     // function getProduct(uint256 _productId) public view returns (string memory, string memory, string memory, string memory, string memory, uint256, uint256, address){
-    function getProduct(uint256 _productId) public view returns (string memory, string memory, string memory, string memory, uint256, uint256, uint256){
+    function getProduct(uint256 _productId) public view returns (string memory, string memory, string memory, string memory, uint256, uint256, address){
         return (products[_productId].modelNumber,
                 // products[_productId].partNumber,
                 products[_productId].serialNumber,
                 products[_productId].participantName,
                 products[_productId].participantType,
-                products[_productId].participantId,
                 products[_productId].cost,
-                products[_productId].mfgTimeStamp);
-                // products[_productId].productOwnerAddress);
+                products[_productId].mfgTimeStamp,
+                products[_productId].productOwnerAddress);
     }
-    function getproductOwnerData(uint256 _productId) public view returns (string memory, string memory, address, uint64){
+    function getproductOwnerData(uint256 _productId) public view returns (string memory, string memory, address){
         return (products[_productId].participantName,
                 products[_productId].participantType,
-                products[_productId].productOwnerAddress,
-                products[_productId].participantId);
+                products[_productId].productOwnerAddress);
     }
 
     // function newOwner(uint256 _user1Id,uint256 _user2Id, uint256 _prodId) onlyOwner(_prodId) public returns (bool) {
     function newOwner(address _signer,
                         bytes32 _hash, 
                         bytes memory _signature,
-                        uint64 _user1Id,
-                        uint64 _user2Id, 
+                        uint256 _user1Id,
+                        uint256 _user2Id, 
                         uint256 _prodId) public verifySignature(_signer, _hash, _signature) returns (bool) {
         participant memory p1 = participants[_user1Id];
         participant memory p2 = participants[_user2Id];
@@ -161,7 +157,6 @@ contract SupplyChain {
             products[_prodId].productOwnerAddress = p2.participantAddress;
             products[_prodId].participantName = p2.userName;
             products[_prodId].participantType = p2.participantType;
-            products[_prodId].participantId = _user2Id;
             productTrack[_prodId].push(ownership_id);
             emit TransferOwnership(_prodId);
 
@@ -175,7 +170,6 @@ contract SupplyChain {
             products[_prodId].productOwnerAddress = p2.participantAddress;
             products[_prodId].participantName = p2.userName;
             products[_prodId].participantType = p2.participantType;
-            products[_prodId].participantId = _user2Id;
             productTrack[_prodId].push(ownership_id);
             emit TransferOwnership(_prodId);
 
@@ -189,7 +183,6 @@ contract SupplyChain {
             products[_prodId].productOwnerAddress = p2.participantAddress;
             products[_prodId].participantName = p2.userName;
             products[_prodId].participantType = p2.participantType;
-            products[_prodId].participantId = _user2Id;
             productTrack[_prodId].push(ownership_id);
             emit TransferOwnership(_prodId);
 

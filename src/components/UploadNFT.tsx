@@ -8,7 +8,7 @@ import { Contract, ethers, hashMessage, Provider, Signer } from 'ethers';
 import { TOKEN_CONTRACT_ADDRESS } from "../assets/constants";
 // import { Address } from "web3";
 import { toast } from "react-toastify";
-import { getTransmisionData } from "../utils/TransmisionData";
+import { getNewOwnerData } from "../utils/newOwnerData";
 import { signMessage } from "../utils/SignMessageFunction";
 import { IProvider } from "@web3auth/base";
 import Web3 from "web3";
@@ -72,8 +72,7 @@ type TransmisionData = {
 //     }
 // }
 
-// // Llamar a la función para probar
-// testProductInfoHandling();
+
 let isProcessing = false;
 
 export async function UploadNFT(signer: ethers.Signer, address: string, contract: Contract, provider: Provider): Promise<boolean> {
@@ -84,12 +83,13 @@ export async function UploadNFT(signer: ethers.Signer, address: string, contract
     // const [productId, setProductId] = useState<ethers.BigNumberish | undefined>(undefined);
     let productId: ethers.BigNumberish | undefined;
     // Variable para evitar duplicar el procesamiento de eventos
+
     ////////////////////BORRAR; ES PARA PRUEBAS LOCALES CON ANVIL SOLO///////////////
     const tokenContract = new Contract("0x5FbDB2315678afecb367f032d93F642f64180aa3", supplyChainTokenABI, signer);
     // const tokenContract = new Contract(TOKEN_CONTRACT_ADDRESS, supplyChainTokenABI, signer);
     console.log("UP_tokenContract", tokenContract);
     console.log("UP_Contract", contract);
-    //////////////////////////////////BORRAR////////////////////////////////////
+    //////////////////////////////////BORRAR la Private key harcodeada////////////////////////////////////
 // const _provider = new ethers.JsonRpcProvider(process.env.REACT_APP_ARBITRUM_SEPOLIA_RPC_URL);
     const privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
 // const wallet = new ethers.Wallet(privateKey, _provider);
@@ -136,8 +136,8 @@ const _hash = ethers.hashMessage(_message);
                 const ownershipIds = await contract.getProvenance(productId);
                 console.log("UP_productInfo",productInfo);
                 console.log("UP__ownershipIds ",ownershipIds );
-                const { transmisionDataArray, filteredIds } = await getTransmisionData(ownershipIds);
-                console.log("UP__transmisionDataArray + filteredIds ",transmisionDataArray, filteredIds);
+                const { newOwnerDataArray, filteredIds } = await getNewOwnerData(ownershipIds);
+                console.log("UP__newOwnerDataArray + filteredIds ",newOwnerDataArray, filteredIds);
                 
                 const supplierType = String(productInfo[3]).trim();
 
@@ -156,10 +156,7 @@ const _hash = ethers.hashMessage(_message);
                         // if (metadataCid !== -1 && metadataCid !== undefined) {
                             if ( metadataCid !== undefined) {
                             
-                            // Estas dos lineas ya no son necesarias, se realiza en la propia funcion en Pinata.tsx
-                            // const parts = metadataURL.split('/'); // Se divide la URL en partes usando '/' como delimitador
-                            // const cid = parts[parts.length - 1]; // Se devuelve la última parte, que debería ser el CID
-                        
+                           
                             // const success = true;
                             console.log("Signer justo antes de emitNFT", signer);
                             const success = await emitNFT(tokenContract, productId, metadataCid, address, filteredIds, signer);
@@ -229,7 +226,7 @@ const _hash = ethers.hashMessage(_message);
     
     //This function uploads the metadata to IPFS
     // async function uploadMetadataToIPFS(ownershipIds: ethers.BigNumberish[], productId: ethers.BigNumberish, transmisionDataArray: TransmisionData[]) {
-    async function uploadMetadataToIPFS(ownershipIds: ethers.BigNumberish[], productId: ethers.BigNumberish, transmisionDataArray: TransmisionData[]) {
+    async function uploadMetadataToIPFS(ownershipIds: ethers.BigNumberish[], productId: ethers.BigNumberish, newOwnerDataArray: TransmisionData[]) {
     //     let transmisionDataArray: TransmisionData[] = [];
 
     // try {
@@ -244,7 +241,7 @@ const _hash = ethers.hashMessage(_message);
     // }
 
     // Verificar si el array de transmisionData no está vacío
-    if (!productId || transmisionDataArray.length === 0) {
+    if (!productId || newOwnerDataArray.length === 0) {
         toast.error("No hay datos para cargar a IPFS.");
         console.error("No hay datos para cargar a IPFS.");
         return -1;
@@ -253,7 +250,7 @@ const _hash = ethers.hashMessage(_message);
     const nftJSON = {
         productId: productId.toString(),
         ownershipIds: idsArray,
-        ownershipsData: transmisionDataArray?.map(data => ({
+        ownershipsData: newOwnerDataArray?.map(data => ({
             Fecha: data.Fecha,
             Participante: data.Participante,
             Clase: data.Clase,
@@ -350,10 +347,6 @@ const _hash = ethers.hashMessage(_message);
             } catch (error) {
                 console.error('Static call error:', error);
             }
-            console.log("Hash", hash);
-            console.log("address", address);
-            console.log("Signature", signature);
-            console.log("DATOS para MINT",hash, signature, address, productId, 1, metadataCid);
             const tx = await tokenContract.mint(hash, signature, address, productId, 1, metadataCid);
             await tx.wait();
             console.log('NFT emitted successfully');

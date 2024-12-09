@@ -1,70 +1,50 @@
 import React from "react";
 import { useUserContext } from "../contexts/UserContext";
 import { Signer, Contract } from "ethers";
-// import { Contract } from 'web3';
-// import '../App.css';
-// import './App.css';
 
-// interface ProductData {
-//   modelNumber: string;
-//   serialNumber: string;
-//   participantName: string;
-//   participantType: string;
-//   cost: number;
-//   fgTimeStamp: number;
-//   productOwnerAddress: string;
-// }
-// interface OwnershipData {
-//   productId: number,
-//   productOwnerId: number,
-//   productOwnerAddress: string
-//   trxTimeStamp: number
-// }
-// interface ParticipantData {
-//   userName: string,
-//   participantType: string,
-//   participantAddress: string
-// }
+/**
+ * Props for the DataEntry component.
+ */
+interface DataEntryProps {
+  signer: Signer | null; /** Ethereum signer */
+  contract: Contract | null;  /** Smart contract instance */
+  address: string;  /** Ethereum address of the user*/
+  name: string;/** Name of a participant*/
+  pass: string;/** Password of a participant*/
+  participantAddress: any;/** Address of a participant*/
+  participantType: string;/** Type of a participant*/
+  modelNumber: string; /** Product model number */
+  serialNumber: string;/** Product serial number */
+  partNumber: string;/** Product part number*/
+  productCost: number;/** Product cost */
+  isLoading: boolean; /** Loading state */
+  // user1: number;/** User number 1 ID in a transmission*/
+  user2: number;/** User number 2 ID in a transmission*/
+  theProductId: number;/** Product ID */
+  ownerId: number;/** Owner ID of a product*/
+  theOwnershipId: number;/** Ownership ID*/ 
+  setParticipantData: React.Dispatch<React.SetStateAction<any[] | undefined>>;/** Function to set participant data */
+  setProductData: React.Dispatch<React.SetStateAction<any[] | undefined>>;/** Function to set product data */
+  setOwnershipData: React.Dispatch<React.SetStateAction<any[] | undefined>>;/** Function to set ownership data */
+  setProvenanceData: React.Dispatch<React.SetStateAction<any[] | undefined>>;/** Function to set provenance data */
+  setName: React.Dispatch<React.SetStateAction<string | "">>;/** Function to set the name of a participant*/
+  setPass: React.Dispatch<React.SetStateAction<string | "">>;/** Function to set the pass of a participant*/
+  setParticipantAddress: React.Dispatch<React.SetStateAction<any | "">>;/** Function to set the address of a participant*/
+  setParticipantType: React.Dispatch<React.SetStateAction<string | "">>;/** Function to set the type of a participant*/
+  setOwnerId: React.Dispatch<React.SetStateAction<number>>;/** Function to set owner ID of a product*/
+  setModelNumber: React.Dispatch<React.SetStateAction<string | "">>;/** Function to set model number of a product*/
+  setSerialNumber: React.Dispatch<React.SetStateAction<string | "">>;/** Function to set serial number of a product*/
+  setProductCost: React.Dispatch<React.SetStateAction<number>>;/** Function to set the cost of a product*/
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;/** Function to set loading state */
+  // setUser1: React.Dispatch<React.SetStateAction<number>>;/** Function to set user 1 of a ownership's transmission*/
+  setUser2: React.Dispatch<React.SetStateAction<number>>;/** Function to set user 2 of a ownership's transmission*/
+  setTheOwnershipId: React.Dispatch<React.SetStateAction<number>>; /** Function to set ownership ID */
+  setTheProductId: React.Dispatch<React.SetStateAction<number>>; /** Function to set product ID */
+  setIsProductModalOpen: React.Dispatch<React.SetStateAction<boolean>>;/** Function to set new product modal open state */
+  setIsParticipantModalOpen: React.Dispatch<React.SetStateAction<boolean>>;/** Function to set new participant modal open state */
+  setIsNewOwnerModalOpen: React.Dispatch<React.SetStateAction<boolean>>;/** Function to set new owner modal open state */
 
-interface ProductEntryProps {
-  signer: Signer | null;
-  contract: Contract | null;
-  address: string;
-  name: string;
-  pass: string;
-  participantAddress: any;
-  participantType: string;
-  modelNumber: string;
-  serialNumber: string;
-  partNumber: string;
-  productCost: number;
-  isLoading: boolean;
-  user1: number;
-  user2: number;
-  theProductId: number;
-  ownerId: number;
-  theOwnershipId: number;
-  setParticipantData: React.Dispatch<React.SetStateAction<any[] | undefined>>;
-  setProductData: React.Dispatch<React.SetStateAction<any[] | undefined>>;
-  setOwnershipData: React.Dispatch<React.SetStateAction<any[] | undefined>>;
-  setProvenanceData: React.Dispatch<React.SetStateAction<any[] | undefined>>;
-  setName: React.Dispatch<React.SetStateAction<string | "">>;
-  setPass: React.Dispatch<React.SetStateAction<string | "">>;
-  setParticipantAddress: React.Dispatch<React.SetStateAction<any | "">>;
-  setParticipantType: React.Dispatch<React.SetStateAction<string | "">>;
-  setOwnerId: React.Dispatch<React.SetStateAction<number>>;
-  setModelNumber: React.Dispatch<React.SetStateAction<string | "">>;
-  setSerialNumber: React.Dispatch<React.SetStateAction<string | "">>;
-  setProductCost: React.Dispatch<React.SetStateAction<number>>;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  setUser1: React.Dispatch<React.SetStateAction<number>>;
-  setUser2: React.Dispatch<React.SetStateAction<number>>;
-  setTheOwnershipId: React.Dispatch<React.SetStateAction<number>>;
-  setTheProductId: React.Dispatch<React.SetStateAction<number>>;
-  setIsProductModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsParticipantModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsNewOwnerModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  // fetchProvenanceData: () => Promise<void>;
+  /** Function to add a participant */
   addParticipant: (
     signer: Signer,
     contract: Contract,
@@ -81,6 +61,8 @@ interface ProductEntryProps {
     setParticipantAddress: React.Dispatch<React.SetStateAction<string>>,
     setParticipantType: React.Dispatch<React.SetStateAction<string>>
   ) => void;
+
+  /** Function to add a product*/
   addProduct: (
     signer: Signer,
     contract: any,
@@ -98,26 +80,37 @@ interface ProductEntryProps {
     setSerialNumber: React.Dispatch<React.SetStateAction<string>>,
     setProductCost: React.Dispatch<React.SetStateAction<number>>
   ) => void;
+
+  /** Function to set a new owner */
   newOwner: (
     signer: Signer,
     contract: any,
     address: string,
-    user1: number,
+    // user1: number,
     user2: number,
     theProductId: number,
-    theOwnershipId: number,
+    // theOwnershipId: number,
     setIsNewOwnerModalOpen: React.Dispatch<React.SetStateAction<boolean>>,
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setOwnershipData: React.Dispatch<React.SetStateAction<any[] | undefined>>,
     setProvenanceData: React.Dispatch<React.SetStateAction<any[] | undefined>>,
-    setUser1: React.Dispatch<React.SetStateAction<number>>,
+    // setUser1: React.Dispatch<React.SetStateAction<number>>,
     setUser2: React.Dispatch<React.SetStateAction<number>>,
-    setTheOwnershipId: React.Dispatch<React.SetStateAction<number>>,
+    // setTheOwnershipId: React.Dispatch<React.SetStateAction<number>>,
     setTheProductId: React.Dispatch<React.SetStateAction<number>>
-    // fetchProvenanceData: () => Promise<void>
   ) => void;
 }
-const DataEntry: React.FC<ProductEntryProps> = ({
+
+/**
+ * DataEntry Component
+ * 
+ * This component handles the entry of data for participants, products, and ownership changes.
+ * It provides functionality to add participants, add products, and set new owners.
+ * 
+ * @param props - The props of type DataEntryProps
+ * @returns A React Functional Component
+ */
+const DataEntry: React.FC<DataEntryProps> = ({
   signer,
   contract,
   address,
@@ -147,7 +140,6 @@ const DataEntry: React.FC<ProductEntryProps> = ({
   setSerialNumber,
   setProductCost,
   setIsLoading,
-  // setUser1,
   setUser2,
   setTheProductId,
   setIsProductModalOpen,
@@ -155,13 +147,19 @@ const DataEntry: React.FC<ProductEntryProps> = ({
   setIsNewOwnerModalOpen,
   addParticipant,
   addProduct,
-  newOwner,
-  // fetchProvenanceData
-  // fetchOwnershipData,
-  // fetchParticipantData
+  newOwner
 }) => {
+
+  /**
+   * Extracts user context values using the useUserContext hook.
+   * This provides access to user-specific data and functions to update it.
+   */
   const { user1, setUser1, theOwnershipId, setTheOwnershipId } =
     useUserContext();
+
+  /**
+   * Handles the addition of a new participant
+   */  
   const handleAddParticipant = async () => {
     if (!signer || !contract) {
       console.error("Signer o contract no están inicializados");
@@ -186,6 +184,9 @@ const DataEntry: React.FC<ProductEntryProps> = ({
     );
   };
 
+  /**
+   * Handles the addition of a new product
+   */
   const handleAddProduct = async () => {
     if (!signer || !contract) {
       console.error("Signer o contract no están inicializados");
@@ -211,6 +212,9 @@ const DataEntry: React.FC<ProductEntryProps> = ({
     );
   };
 
+  /**
+   * Handles setting a new owner for a product
+   */
   const handleNewOwner = async () => {
     if (!signer || !contract) {
       console.error("Signer o contract no están inicializados");
@@ -221,25 +225,22 @@ const DataEntry: React.FC<ProductEntryProps> = ({
       signer,
       contract,
       address,
-      user1,
+      // user1,
       user2,
       theProductId,
-      theOwnershipId,
+      // theOwnershipId,
       setIsNewOwnerModalOpen,
       setIsLoading,
       setProvenanceData,
       setOwnershipData,
-      setUser1,
+      // setUser1,
       setUser2,
-      setTheOwnershipId,
+      // setTheOwnershipId,
       setTheProductId
-      // fetchProvenanceData
     );
   };
 
   return (
-    // const ProductEntry = ({ name, pass, participantAddress, participantType, ownerId, modelNumber, serialNumber, productCost, user1, user2, theProductId, setName, setPass, setParticipantAddress, setParticipantType,setOwnerId, setModelNumber, setSerialNumber, setProductCost, setUser1, setUser2, setTheProductId }) => {
-    // }) => {  return (
     <div className=" flex flex-col flex-center m-auto w-full justify-evenly gap-2 p-2 text-stone-800">
       <div className="flex flex-col justify-between gap-2 ">
         {/* Aquí va el contenido de la sección de entrada de datos del producto */}
@@ -342,7 +343,6 @@ const DataEntry: React.FC<ProductEntryProps> = ({
                   value={ownerId}
                   min="0"
                   onChange={(e) => setOwnerId(parseInt(e.target.value))}
-                  // className="w-28 bg-orange-100 border-2 border-stone-800 p-2 rounded-md  text-base md:text-xl"
                   className="w-full h-12 h-12 bg-[#292d67] border-2 border-stone-800 px-2 rounded-md text-base md:text-xl text-white"
                   style={{ fontSize: "20px" }}
                 />
@@ -361,7 +361,6 @@ const DataEntry: React.FC<ProductEntryProps> = ({
                   onChange={(e) => setModelNumber(e.target.value)}
                   className="w-full h-12 bg-[#292d67] border-2 border-stone-800 px-2 rounded-md text-base md:text-xl text-white"
                   style={{ fontSize: "20px" }}
-                  // style={{ backgroundColor: '#5e606d', fontSize: '20px' }}
                 />
               </div>
             </div>
@@ -378,7 +377,6 @@ const DataEntry: React.FC<ProductEntryProps> = ({
                 />
               </div>
               <div className="flex flex-col w-2/5">
-                {/* <label htmlFor="productCost">Coste del producto:</label> */}
                 <label htmlFor="serialNumber">Coste del producto:</label>
                 <input
                   type="number"
@@ -389,7 +387,6 @@ const DataEntry: React.FC<ProductEntryProps> = ({
                   // className="w-1/3 h-12 mt-6 bg-orange-100 border-2 border-stone-800 p-2 rounded-md  text-base md:text-xl"
                   className="w-full h-12 bg-[#292d67] border-2 border-stone-800 px-2 rounded-md  text-base md:text-xl text-white"
                   // className="w-full bg-orange-100 border-2 border-stone-800 p-2 rounded-md  text-base md:text-xl"
-                  // style={{ backgroundColor: '#5e606d', fontSize: '20px' }}
                   style={{ fontSize: "20px" }}
                 />
               </div>
@@ -411,7 +408,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
             </div>
           </div>
 
-          {/* Sección para mover el producto */}
+          {/* Sección para mover el producto entre proveedores */}
           {/* <div className="flex flex-col flex-grow w-full max-w-xs"> */}
           <div className="flex flex-col xl:flex-row w-full gap-2 2xl:gap-4">
             <div className="flex w-full xl:w-1/2 gap-2 2xl:gap-4">
@@ -438,6 +435,8 @@ const DataEntry: React.FC<ProductEntryProps> = ({
                 >
                   Cambiar de este proveedor...
                 </label>
+                {/* Hay que ELIMINAR este input innecesario */}
+                {/* <p className="flex items-center w-full bg-[#292d67] h-12 px-2 border-2 border-stone-800  rounded-md text-base md:text-xl text-white">{ownerId}</p> */}
                 <input
                   type="number"
                   placeholder="Número de Id del poseedor actual"
@@ -474,7 +473,7 @@ const DataEntry: React.FC<ProductEntryProps> = ({
                 <button
                   className="flex w-full h-12 bg-[#ca0372] justify-center items-center border-2 border-stone-800 rounded-md hover:bg-opacity-50  transition-all disabled:opacity-80 text-white text-base xl:text-xl leading-none"
                   onClick={handleNewOwner}
-                  disabled={isLoading || !user1 || !user2 || !theProductId}
+                  disabled={isLoading  || !user2 || !theProductId}
                 >
                   {isLoading
                     ? "Moviendo el producto..."

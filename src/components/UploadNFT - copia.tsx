@@ -8,7 +8,7 @@ import { Contract, ethers, Signer } from 'ethers';
 import { TOKEN_CONTRACT_ADDRESS } from "../assets/constants";
 // import { Address } from "web3";
 import { toast } from "react-toastify";
-import { getTransmisionData } from "../utils/TransmisionData";
+import { getNewOwnerData } from "../utils/newOwnerData";
 
 type TransmisionData = {
     Fecha: string;
@@ -118,8 +118,8 @@ export default function UploadNFT(signer: Signer, address: string) {
 
     try {
         if (productData) {
-            const data = await getTransmisionData(productData);
-            transmisionDataArray = data.transmisionDataArray;   
+            const data = await getNewOwnerData(productData);
+            transmisionDataArray = data.newOwnerDataArray;   
             // updateTransmisionData(transmisionDataArray);
             console.log("transmisionDataArray", transmisionDataArray);
         }

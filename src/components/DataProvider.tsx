@@ -1,51 +1,44 @@
 import React, { useEffect, useState } from "react";
 // import '../App.css';
-// import './App.css';
 import formatDate from "../utils/FormatDate";
+import { fetchProductData, fetchParticipantData, fetchProvenanceData, fetchOwnershipData } from '../utils/FetchDataFunctions';
+import { Contract } from "ethers";
 
-// interface ProductData {
-//   modelNumber: string;
-//   serialNumber: string;
-//   participantName: string;
-//   participantType: string;
-//   cost: number;
-//   fgTimeStamp: number;
-//   productOwnerAddress: string;
-// }
-// interface OwnershipData {
-//   productId: number,
-//   productOwnerId: number,
-//   productOwnerAddress: string
-//   trxTimeStamp: number
-// }
-// interface ParticipantData {
-//   userName: string,
-//   participantType: string,
-//   participantAddress: string
-// }
-
+/**
+ * Props for the DataProvider component.
+ */
 interface DataProviderProps {
-  productData: any[];
-  participantData: any[];
-  ownershipData: any[];
-  provenanceData: number[];
-  participantId: number;
-  ownershipId: number;
-  productId: number;
-  participant_type: string;
-  isLoading: boolean;
-  setProductData: React.Dispatch<React.SetStateAction<any[] | undefined>>; // Ajuste para el tipo correcto
-  setParticipantData: React.Dispatch<React.SetStateAction<any[] | undefined>>; // Ajuste para el tipo correcto
-  setOwnershipData: React.Dispatch<React.SetStateAction<any[] | undefined>>; // Ajuste para el tipo correcto
-  setProvenanceData: React.Dispatch<React.SetStateAction<number[] | undefined>>; // Ajuste para el tipo correcto
-  setParticipantId: React.Dispatch<React.SetStateAction<number>>; // Corrección en el nombre y ajuste para el tipo correcto
-  setOwnershipId: React.Dispatch<React.SetStateAction<number>>; // Corrección en el nombre y ajuste para el tipo correcto
-  setProductId: React.Dispatch<React.SetStateAction<number>>; // Corrección en el nombre y ajuste para el tipo correcto
-  fetchOwnershipData: () => void;
-  fetchParticipantData: () => void;
+  contract: Contract | null;  /** Smart contract instance */
+  productData: any[] /** Array of product data */;
+  participantData: any[] /** Array of participant data */
+  ownershipData: any[] /** Array of ownership data */;
+  provenanceData: number[] /** Array of provenance data */;
+  participantId: number /** ID of the current participant */;
+  ownershipId: number /** ID of the current ownership */;
+  productId: number /** ID of the current product */;
+  participant_type: string /** Type of the participant */;
+  isLoading: boolean /** Loading state */;
+  setProductData: React.Dispatch<React.SetStateAction<any[] | undefined>>; /** Function to set product data */
+  setParticipantData: React.Dispatch<React.SetStateAction<any[] | undefined>>; /** Function to set participant data */
+  setOwnershipData: React.Dispatch<React.SetStateAction<any[] | undefined>>; /** Function to set ownership data */
+  setProvenanceData: React.Dispatch<React.SetStateAction<number[] | undefined>>;/** Function to set provenance data */
+  setParticipantId: React.Dispatch<React.SetStateAction<number>>; /** Function to set participant ID */
+  setOwnershipId: React.Dispatch<React.SetStateAction<number>>;  /** Function to set ownership ID */
+  setProductId: React.Dispatch<React.SetStateAction<number>>;  /** Function to set product ID */
+  fetchOwnershipData: () => void;  /** Function to fetch ownership data */
+  // fetchParticipantData: () => void; /** Function to fetch participant data */
 }
-
+/**
+ * DataProvider Component
+ * 
+ * This component manages and displays data related to products, participants, and ownerships.
+ * It provides functionality to show/hide ownership and participant data.
+ * 
+ * @param props - The props of type DataProviderProps
+ * @returns A React Functional Component
+ */
 const DataProvider: React.FC<DataProviderProps> = ({
+  contract,
   ownershipData,
   participantData,
   productData,
@@ -55,26 +48,22 @@ const DataProvider: React.FC<DataProviderProps> = ({
   productId,
   participant_type,
   isLoading,
-  // setParticipantData,
-  // setProductData,
-  // setOwnershipData,
-  // setProvenanceData,
+  setParticipantData,
   setParticipantId,
   setOwnershipId,
   setProductId,
   fetchOwnershipData,
-  fetchParticipantData,
+  // fetchParticipantData,
 }) => {
+  /** State to control visibility of ownership data */
   const [showOwnershipData, setShowOwnershipData] = useState(true);
+  /** State to control visibility of participant data */
   const [showParticipantData, setShowParticipantData] = useState(true);
 
-  useEffect(() => {
-    // console.log("productData-DP:", productData);
-    // console.log("participantData-DP:", participantData);
-    // console.log("ownershipData-DP:", ownershipData);
-    // console.log("provenanceData-DP:", provenanceData);
-    // console.log("participant_type-DP:", participant_type);
-  }, [
+  /**
+   * Effect hook to handle side effects when certain data changes
+   */
+  useEffect(() => {}, [
     productData,
     participantData,
     ownershipData,
@@ -128,7 +117,6 @@ const DataProvider: React.FC<DataProviderProps> = ({
 
         <div className="flex justify-around gap-4 place-items-center">
           <img
-            // src="supplychain_manufacturer.png"
             src="supplychainmanufacturer.png"
             // className={`w-52 h-28 rounded-md transform transition-transform duration-300 ${
             className={`w-20 md:w-36 lg:w-52 h-16 md:h-20 lg:h-28 rounded-md transform transition-transform duration-300 ${
@@ -176,21 +164,21 @@ const DataProvider: React.FC<DataProviderProps> = ({
             &nbsp;|&nbsp; Nº DE SERIE - {productData ? productData[1] : ""}{" "}
             &nbsp;|&nbsp; COSTE -{" "}
             {productData
-              ? productData[4]
-                ? typeof productData[4] === "bigint"
-                  ? productData[4].toString()
-                  : productData[4].toString()
+              ? productData[5]
+                ? typeof productData[5] === "bigint"
+                  ? productData[5].toString()
+                  : productData[5].toString()
                 : ""
               : ""}{" "}
             &nbsp;|&nbsp;
             {/* FECHA DE FABRICACION - {productData ? (typeof productData[5] === 'bigint' ? productData[5].toString() : productData[5].toString()) : '' ''} &nbsp;|&nbsp; */}
             FECHA DE FABRICACION -{" "}
             {productData
-              ? productData[5]
-                ? formatDate(productData[5])
+              ? productData[6]
+                ? formatDate(productData[6])
                 : ""
               : ""}{" "}
-            &nbsp;|&nbsp; CUENTA DEL DUEÑO - {productData ? productData[6] : ""}
+            &nbsp;|&nbsp; NUMERO DEL DUEÑO - {productData ? productData[4] : ""}
           </div>
           {/* <div className="flex flex-row bg-orange-100 border-2 border-stone-800 p-4 rounded-md w-full mb-2 text-base md:text-xl"> */}
           <div className="flex flex-row bg-[#292d67] border-2 border-stone-800 p-4 rounded-md w-full  mb-4 text-white text-base md:text-xl">
@@ -282,8 +270,6 @@ const DataProvider: React.FC<DataProviderProps> = ({
 
           {/* Botones para obtener datos de trazabilidad y datos de proveedor */}
           <div className="flex flex-wrap md:flex-nowrap w-full justify-between gap-4 m-2">
-            {/* Agrupamos el <p> y el <input> en un div */}
-            {/* Contenedor para el <p> y el <input> */}
             <div className="flex gap-4 w-full md:w-2/5">
               <p className="flex w-4/6 h-12 bg-[#292d67] text-center text-white items-center justify-center border-2 border-stone-800 p-2 rounded-md text-base md:text-base lg:text-base xl:text-xl leading-none">
                 ID de Transferencia o Proveedor
@@ -305,10 +291,14 @@ const DataProvider: React.FC<DataProviderProps> = ({
             {/* Contenedor para los botones */}
             <div className="flex flex-col sm:flex-row gap-4 w-full md:w-3/5 text-sm md:text-xs lg:text-xl">
               <button
-                onClick={() => {
-                  setShowParticipantData(true);
-                  fetchParticipantData();
-                }}
+                  onClick={() => {
+                    if (contract) { // Verifica que el contrato no sea null
+                      setShowParticipantData(true);
+                      fetchParticipantData(contract, participantId, ownershipId, setParticipantData);
+                    } else {
+                      console.error("El contrato no está disponible.");
+                    }
+                  }}
                 className="w-full h-12 bg-[#ca0372] text-white border-2 border-stone-800 p-2 rounded-md hover:bg-opacity-60 transition-all disabled:opacity-80 text-base md:text-base lg:text-base xl:text-xl leading-none font-semibold"
                 disabled={isLoading || !ownershipId}
               >

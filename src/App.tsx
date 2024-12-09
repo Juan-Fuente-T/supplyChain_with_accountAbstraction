@@ -6,6 +6,7 @@ import ParticipantModal from './components/ParticipantModal';
 import TraceabilityModal from './components/TraceabilityModal';
 import NewOwnerModal from './components/NewOwnerModal';
 import { addParticipant, addProduct, newOwner } from './utils/NewItemsFunctions';
+import { fetchProductData, fetchParticipantData, fetchProvenanceData, fetchOwnershipData } from './utils/FetchDataFunctions';
 import { uiConsole } from './utils/SignMessageFunction';
 
 
@@ -147,9 +148,6 @@ function App(): JSX.Element {
   const [provenanceData, setProvenanceData] = useState<any>(null);
   const [ownershipData, setOwnershipData] = useState<any>(null);
   const [participant_type, setParticipant_type] = useState('');
-  // const [actualProductId, setActualProductId] = useState<any>(null);
-  // const [actualParticipantId, setActualParticipantId] = useState<any>(null);
-  // const [actualOwnerIdData, setActualOwnerIdData] = useState<any>(0);
 
   const [web3authProvider, setWeb3authProvider] = useState<IProvider | null>(null);
   const [web3authSigner, setWeb3authSigner] = useState<Signer | null>(null);
@@ -222,7 +220,11 @@ function App(): JSX.Element {
           //   process.env.REACT_APP_ARBITRUM_SEPOLIA_RPC_URL
           // );
           ////////////////////BORRAR; ES PARA PRUEBAS LOCALES CON ANVIL SOLO///////////////
-          const provider: JsonRpcProvider = new JsonRpcProvider('http://localhost:8545');
+          // const provider: JsonRpcProvider = new JsonRpcProvider('http://localhost:8545');
+          const provider: JsonRpcProvider = new JsonRpcProvider('http://localhost:8545', {
+    chainId: 31337,
+    name: 'anvil'
+  });
           setProvider(provider);
           console.log("APP provider", provider);
           //////////////////////////////////
@@ -255,7 +257,6 @@ function App(): JSX.Element {
             console.log("PROVENANCE", provenanceData);
           }
 
-          // console.log("Provider", web3auth.provider);
           setIsLoading(false);
         } else {
           throw new Error("Provider not initialized");
@@ -358,44 +359,43 @@ function App(): JSX.Element {
   //   functionName: 'product_id',
   // })
 
-
-  const fetchParticipantData = async () => {
-    if (!contract) {
-      console.error("Contract is not initialized");
-      return;
-    }
-    try {
-      const result: any = await contract?.getParticipant(participantId);
-      if (result && result.length === 3) {
-        const [participantName, participantType, productOwnerAddress] = result;
-        console.log("Participant Name:", participantName);
-        console.log("Participant Type:", participantType);
-        console.log("Product Owner Address:", productOwnerAddress);
-        if (participantName.trim() !== '' && participantType.trim() !== '' && productOwnerAddress !== '0x0000000000000000000000000000000000000000') {
-          setParticipantData(result);
+  // const fetchParticipantData = async () => {
+  //   if (!contract) {
+  //     console.error("Contract is not initialized");
+  //     return;
+  //   }
+  //   try {
+  //     const result: any = await contract?.getParticipant(participantId);
+  //     if (result && result.length === 3) {
+  //       const [participantName, participantType, productOwnerAddress] = result;
+  //       console.log("Participant Name:", participantName);
+  //       console.log("Participant Type:", participantType);
+  //       console.log("Product Owner Address:", productOwnerAddress);
+  //       if (participantName.trim() !== '' && participantType.trim() !== '' && productOwnerAddress !== '0x0000000000000000000000000000000000000000') {
+  //         setParticipantData(result);
   
-          let participant = new Participant(
-            participantName.toString(),
-            participantType.toString(),
-            productOwnerAddress.toString(),
-            participantId.toString()
-          );
-          console.log("Participant Object:", participant);
-          if (participant.name.trim() !== '' && participant.participantType.trim() !== '' && participant.participantAddress !== '0x0000000000000000000000000000000000000000') {           
-             addItemToLocalStorage(participant, "participant");
-          } else {
-            console.error("Invalid participantId data:", participant);
-          }
-        } else {
-          console.error("Invalid data received from contract:", result);
-        }
-      } else {
-        console.error("No valid data found for participant ID:", ownershipId);
-      }
-    } catch (error) {
-      console.error("Error fetching participant data:", error);
-    }
-  };
+  //         let participant = new Participant(
+  //           participantName.toString(),
+  //           participantType.toString(),
+  //           productOwnerAddress.toString(),
+  //           participantId.toString()
+  //         );
+  //         console.log("Participant Object:", participant);
+  //         if (participant.name.trim() !== '' && participant.participantType.trim() !== '' && participant.participantAddress !== '0x0000000000000000000000000000000000000000') {           
+  //            addItemToLocalStorage(participant, "participant");
+  //         } else {
+  //           console.error("Invalid participantId data:", participant);
+  //         }
+  //       } else {
+  //         console.error("Invalid data received from contract:", result);
+  //       }
+  //     } else {
+  //       console.error("No valid data found for participant ID:", ownershipId);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching participant data:", error);
+  //   }
+  // };
 
   const fetchProductData = async () => {
     if (!contract) {
@@ -555,15 +555,7 @@ function App(): JSX.Element {
     /* }bg-[url('../public/logistica_app.png')]  bg-no-repeat bg-center bg-contain" */
     // style={{backgroundColor: '#292d67'}} >
     > 
-    {/*COLORES:#292d67 azul grisaceo web // rojo: bg-[#ca0372] //turquesa #11c5c5
-     #818a91 gris /#007bff azul mas claro 
-    #0069d9 azul medio #6c757d gris mas oscuro #5a6268 gris aun mas oscuro
-    #28a745 verde #218838 verde mas oscuro #17a2b8 turquesa?
-    #138496 turquesa mas claro #ffc107 naranja #e0a800 naranja mas oscuro
-    #dc3545 rojo #c82333 rojo mas oscuro #343a40 grafito #23272b grafito mas oscuro
-    #212529 casi negro(letra) #f8f9fa casi blanco #e2e6ea casi blanco mas apagado
-    /#ffffff #000000*   extraer de aqui; https://exitflow.cl/wp-content/plugins/pagelayer-pro/css/givecss.php?give=pagelayer-frontend.css%2Cnivo-lightbox.css%2Canimate.min.css%2Cowl.carousel.min.css%2Cowl.theme.default.min.css%2Cfont-awesome5.min.css&premium=%2Cpremium-frontend.css&ver=1.8.5 */}
-    
+  
       <div className="flex flex-col justify-between m-auto w-2/3 border-2 border-stone-800 rounded-md mb-4">
 
         {/* // <div id="container" className="flex flex-col flex-center m-auto bg-orange-50 text-stone-800  bg-no-repeat bg-center bg-contain"> */}
@@ -578,7 +570,7 @@ function App(): JSX.Element {
             <div className="flex px-2 flex-row gap-3 w-full justify-center items-center">
               {/* <img src={user?.profileImage} alt="TraZableDLT" /> */}
               <div className="flex w-full flex-col xl:flex-row gap-2 items-left">
-                <div className="flex border-2 gap-2 w-full">
+                <div className="flex gap-2 w-full">
                 <h2 className=" bg-[#11c5c5] w-full border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-[#292d67] leading-none md:leading-normal">
                   name: {user?.name}</h2>
                 <h2 className=" bg-[#11c5c5] w-full border-2 border-stone-800 p-2 rounded-md w-auto mb-4 text-base md:text-xl text-[#292d67] leading-none md:leading-normal">
@@ -629,12 +621,11 @@ function App(): JSX.Element {
               // fetchProvenanceData={fetchProvenanceData}
               addParticipant={addParticipant}
               addProduct={addProduct}
-              newOwner={newOwner} user1={0} setUser1={function (value: SetStateAction<number>): void {
-                throw new Error('Function not implemented.');
-              } }            
+              newOwner={newOwner}            
               // fetchParticipantData={fetchParticipantData}
             />
             <DataProvider
+              contract={contract}
               productData={productData}
               participantData={participantData}
               ownershipData={ownershipData}
@@ -652,7 +643,7 @@ function App(): JSX.Element {
               setOwnershipId={setOwnershipId}
               setParticipantId={setParticipantId}
               fetchOwnershipData={fetchOwnershipData}
-              fetchParticipantData={fetchParticipantData}
+              // fetchParticipantData={fetchParticipantData}
             />
              {/* <button onClick={() => showTraceability(1)}>Mostrar Trazabilidad</button> */}
              {/* <ProductModal product={product} isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} /> */}
@@ -682,3 +673,6 @@ function App(): JSX.Element {
 
 };
 export default App
+  /*COLORES:#292d67 azul grisaceo web // rojo: bg-[#ca0372] //turquesa #11c5c5
+    extraer de aqui; https://exitflow.cl/wp-content/plugins/pagelayer-pro/css/givecss.php?give=pagelayer-frontend.css%2Cnivo-lightbox.css%2Canimate.min.css%2Cowl.carousel.min.css%2Cowl.theme.default.min.css%2Cfont-awesome5.min.css&premium=%2Cpremium-frontend.css&ver=1.8.5 */
+    
