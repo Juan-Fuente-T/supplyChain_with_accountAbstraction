@@ -1,6 +1,7 @@
 import React from "react";
 import { useUserContext } from "../contexts/UserContext";
 import { Signer, Contract } from "ethers";
+import { UploadNFT } from "./UploadNFT";
 
 /**
  * Props for the DataEntry component.
@@ -216,9 +217,34 @@ const DataEntry: React.FC<DataEntryProps> = ({
    * Handles setting a new owner for a product
    */
   const handleNewOwner = async () => {
+    console.log("Signer, contract", signer, contract);
     if (!signer || !contract) {
       console.error("Signer o contract no están inicializados");
       return;
+    }
+    try {
+      const response = await contract.getParticipant(user2);
+      console.log(response);
+      if (!response) {
+        console.error("No se encontró el participante");
+        return;
+      }
+      console.log("user2", response[1].toString());
+      const type = response[1].toString();
+      if (type == "Consumer") {
+        // if (memoizedSigner && memoizedAddress && memoizedContract && memoizedProvider && !isUploading) {
+          setIsLoading(true);
+          try {
+            const result = await UploadNFT(signer, address, contract, theProductId);
+            console.log('NFT uploaded successfully:', result);
+          } catch (error) {
+            console.error('Error uploading NFT:', error);
+          } finally {
+            setIsLoading(false);
+          }          
+}
+    } catch (error) {
+      console.error("Error al obtener tipo de usuario:", error);
     }
 
     newOwner(
@@ -239,6 +265,7 @@ const DataEntry: React.FC<DataEntryProps> = ({
       setTheProductId
     );
   };
+  
 
   return (
     <div className=" flex flex-col flex-center m-auto w-full justify-evenly gap-2 p-2 text-stone-800">

@@ -129,9 +129,10 @@ const TraceabilityModal: React.FC<TraceabilityModalProps> = ({
 
   return (
     // <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-    <div>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 w-fit max-w-4/6">
+    {/* <div className="flex flex-col"> */}
       <Modal
-        className="modal-custom"
+        className="flex flex-col modal-custom [&.modal-custom]:w-5/6 md:[&.modal-custom]:w-[90vw] xl:[&.modal-custom]:w-[70vw] verflow-y-auto"
         // <Modal className="m-auto bg-opacity-60 flex flex-wrap flex-col justify-center p-4 px-12  mx-4 w-min-1/3 w-fit bg-gray-50 border-2 border-stone-800 rounded-md"
         isOpen={isTraceabilityModalOpen}
         onRequestClose={onRequestClose}
@@ -148,7 +149,7 @@ const TraceabilityModal: React.FC<TraceabilityModalProps> = ({
         {ownerships.length === 0 ? (
           <p className="mb-2 text-white">No hay transferencias de producto.</p>
         ) : (
-          <div className="flex justify-between flex-wrap gap-x-4 gap-y-4 mx-auto max-w-full">
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4 overflow-y-auto">
             {ownerships.map((ownership, index) => {
               const correspondingParticipant = participants.find(
                 (participant) =>
@@ -160,30 +161,29 @@ const TraceabilityModal: React.FC<TraceabilityModalProps> = ({
               return (
                 <div
                   key={index}
-                  className="bg-gray-100 my-4 border border-gray-300 rounded-lg p-4 w-64 shadow-md"
+                  className="bg-gray-100 my-4 border border-gray-300 rounded-lg p-4 w-fit md:w-52 shadow-md"
                 >
-                  <p>Fecha: {ownership?.trxTimeStamp}</p>
+                  <p className="font-semibold">Fecha: {ownership?.trxTimeStamp}</p>
                   {correspondingParticipant ? (
                     <>
-                      <p>{correspondingParticipant.name}</p>
-                      <p>{correspondingParticipant.participantType}</p>
+                      <p className="mt-1">{correspondingParticipant.name}</p>
+                      <p className="text-gray-600">{correspondingParticipant.participantType}</p>
                     </>
                   ) : (
-                    <p>No se encontró el participante correspondiente.</p>
+                    <p className="text-red-500">No se encontró el participante correspondiente.</p>
                   )}
-                  <hr className="my-2" />
                 </div>
               );
             })}
           </div>
         )}
-        <div className="flex flex-col justify-self-end">
-          <button
-            onClick={onRequestClose}
-            className="px-3 bg-[#ca0372] text-white self-end border-2 border-stone-800 rounded-md hover:bg-white hover:text-[#292d67] transition-all disabled:opacity-80 text-5xl font-semibold"
-          >
-            x
-          </button>
+        <div className="flex mt-4 justify-end">
+        <button
+    onClick={onRequestClose}
+    className="px-3 py-1 bg-[#ca0372] text-white border-2 border-stone-800 rounded-md hover:bg-white hover:text-[#292d67] transition-all disabled:opacity-80 text-2xl font-semibold"
+  >
+    x
+  </button>
         </div>
       </Modal>
     </div>

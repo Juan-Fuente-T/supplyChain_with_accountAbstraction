@@ -32,6 +32,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { CommonPrivateKeyProvider } from "@web3auth/base-provider";
 import 'react-toastify/dist/ReactToastify.css';
 import { UploadNFT } from './components/UploadNFT';
+import { set } from 'superstruct';
 
 // Firebase libraries for custom authentication
 // import { initializeApp } from "firebase/app";
@@ -50,11 +51,23 @@ const chainConfig = {
   rpcTarget: process.env.REACT_APP_ARBITRUM_SEPOLIA_RPC_URL || "",
   chainNamespace: CHAIN_NAMESPACES.EIP155,
   displayName: "Arbitrum Sepolia",
-  blockExplorerUrl: "https://arbiscan.io/",
+  blockExplorerUrl: "https://sepolia.arbiscan.io/",
   ticker: "AETH",
   tickerName: "AETH",
   logo: "https://images.toruswallet.io/eth.svg",
 };
+const rpc = 'https://ethereum-sepolia-rpc.publicnode.com';
+// const chainConfig = {
+//   chainId: "0xaa36a7", // Please use 0x1 for Mainnet
+//   // rpcTarget: process.env.REACT_APP_SEPOLIA_RPC_URL || "",
+//   rpcTarget: rpc || "",
+//   chainNamespace: CHAIN_NAMESPACES.EIP155,
+//   displayName: "Sepolia",
+//   blockExplorerUrl: "https://sepolia.etherscan.io/",
+//   ticker: "ETH",
+//   tickerName: "Sepolia Ether",
+//   logo: "https://images.toruswallet.io/eth.svg",
+// };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
   config: { chainConfig: chainConfig },
@@ -153,6 +166,7 @@ function App(): JSX.Element {
   const [web3authSigner, setWeb3authSigner] = useState<Signer | null>(null);
   const [provider, setProvider] = useState<Provider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
+  const [appSigner, setAppSigner] = useState<ethers.Signer | null>(null);
   const [address, setAddress] = useState<string>("");
   const [contract, setContract] = useState<Contract | null>(null);
   
@@ -209,52 +223,60 @@ function App(): JSX.Element {
           let initAddress: any = await web3.eth.getAccounts();
           initAddress = initAddress[0];
 
-          // console.log("initAddress", initAddress);
+          console.log("initAddress", initAddress);
           setAddress(initAddress);
 
           if (web3auth.connected) {
             setLoggedIn(true);
           }
 
-          // const provider: JsonRpcProvider = new JsonRpcProvider(
-          //   process.env.REACT_APP_ARBITRUM_SEPOLIA_RPC_URL
-          // );
+          const provider: JsonRpcProvider = new JsonRpcProvider(
+            process.env.REACT_APP_SEPOLIA_RPC_URL
+          );
           ////////////////////BORRAR; ES PARA PRUEBAS LOCALES CON ANVIL SOLO///////////////
           // const provider: JsonRpcProvider = new JsonRpcProvider('http://localhost:8545');
-          const provider: JsonRpcProvider = new JsonRpcProvider('http://localhost:8545', {
-    chainId: 31337,
-    name: 'anvil'
-  });
-          setProvider(provider);
+          // const provider: JsonRpcProvider = new JsonRpcProvider('http://localhost:8545', {
+          //   chainId: 31337,
+          //   name: 'anvil'
+          // });
+          // setProvider(provider);
           console.log("APP provider", provider);
           //////////////////////////////////
-          // const signer: ethers.Wallet = new Wallet(
-          //   process.env.REACT_APP_WALLET_PRIVATE_KEY || "",
-          //   provider
-          // );
-          ////////////////////BORRAR; ES PARA PRUEBAS LOCALES CON ANVIL SOLO///////////////
-          setAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
-          const signer: ethers.Wallet = new Wallet(
-            "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+          const appSigner: ethers.Wallet = new Wallet(
+            process.env.REACT_APP_WALLET_PRIVATE_KEY || "",
             provider
           );
+          setAppSigner(appSigner);
+          ////////////////////BORRAR; ES PARA PRUEBAS LOCALES CON ANVIL SOLO///////////////
+          // setAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+          // const signer: ethers.Wallet = new Wallet(
+          //   "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+          //   provider
+          // );
           //////////////////////////////////
-          setSigner(signer);
-          console.log("Signer APP", signer);
+          setSigner(w3aSigner);//NECESARIO para que el user firme las transacciones con SU signer
+          // console.log("Signer APP", signer);
           
           // const initContract = new Contract(CONTRACT_ADDRESS, abi, signer);
           ////////////////////BORRAR; ES PARA PRUEBAS LOCALES CON ANVIL SOLO///////////////
-          const initContract = new Contract("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", abi, signer);
+          // const initContract = new Contract("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", abi, signer);
           //////////////////////////////////
+          // const initContract = new Contract(CONTRACT_ADDRESS, abi, signer);
+
+          // setSigner(w3aSigner);//Usamos como signer para todo el de web3auth
+          const initContract = new Contract(CONTRACT_ADDRESS, abi, w3aSigner);//Se instancia el contrato con MI signer para pagar el gas
+          // console.log("AHHHHHHHHHHHHHHHHHIIIIIIIIII VAAAAAAAAAAAAAA", address);
+          // UploadNFT(appSigner, "0x9b61b997299b35064CAf001bfeA9C778973bF436", initContract, 12);
           setContract(initContract);
-          console.log("ContractAPP", initContract);
+          const address = "0x9b61b997299b35064CAf001bfeA9C778973bF436";
+          const balance = await provider.getBalance(address);
+          console.log("balance", balance);
 
           if (productId > 0 || provenanceData) {
-            console.log("PRUEBA");
             fetchProductData();
-            console.log("product", productData);
+            // console.log("product", productData);
             fetchProvenanceData();
-            console.log("PROVENANCE", provenanceData);
+            // console.log("PROVENANCE", provenanceData);
           }
 
           setIsLoading(false);
@@ -286,22 +308,22 @@ function App(): JSX.Element {
     init();
   }, [productId]);
 
-  useEffect(() => {
-    const initializeAndUploadNFT = async () => {
-      if (memoizedSigner && memoizedAddress && memoizedContract && memoizedProvider && !isUploading) {
-        setIsUploading(true);
-        try {
-          const result = await UploadNFT(memoizedSigner, memoizedAddress, memoizedContract, memoizedProvider);
-          console.log('NFT uploaded successfully:', result);
-        } catch (error) {
-          console.error('Error uploading NFT:', error);
-        } finally {
-          setIsUploading(false);
-        }
-      }
-    };
-    initializeAndUploadNFT();
-  }, [memoizedSigner, memoizedAddress, memoizedContract, memoizedProvider, isUploading]);
+  // useEffect(() => {
+  //   const initializeAndUploadNFT = async () => {
+  //     if (memoizedSigner && memoizedAddress && memoizedContract && memoizedProvider && !isUploading) {
+  //       setIsUploading(true);
+  //       try {
+  //         const result = await UploadNFT(memoizedSigner, memoizedAddress, memoizedContract, memoizedProvider);
+  //         console.log('NFT uploaded successfully:', result);
+  //       } catch (error) {
+  //         console.error('Error uploading NFT:', error);
+  //       } finally {
+  //         setIsUploading(false);
+  //       }
+  //     }
+  //   };
+  //   initializeAndUploadNFT();
+  // }, [memoizedSigner, memoizedAddress, memoizedContract, memoizedProvider, isUploading]);
 
   const login = async () => {
     // IMP START - Login
@@ -404,6 +426,7 @@ function App(): JSX.Element {
     }
     try {
       const result = await contract.getProduct(productId);
+      console.log("Linea429. Product Data:", result);
       if (result) {
         setProductData(result);
         setParticipant_type(result ? (result[3]).toString() : '');
@@ -426,16 +449,28 @@ function App(): JSX.Element {
       console.error("Error fetching product data:", error);
     }
   };
-
   const fetchProvenanceData = async () => {
     console.log("INICIO fetchProvenanceData");
-    const result = await contract?.getProvenance(productId);
-    // fetchProductData()
-    setProvenanceData(result);
-    console.log("PROVENANCE RESULT", result);
-    console.log("PROVENANCE DATA", provenanceData);
-    setIsTraceabilityModalOpen(true);
-    console.log("isTraceabilityModalOpen", isTraceabilityModalOpen);
+    if (!contract) {
+      console.error("Contract is not initialized");
+      return;
+    }
+    try {
+      const result = await contract.getProvenance(productId);
+      if (result && Object.keys(result).length > 0) {
+        setProvenanceData(result);
+        console.log("PROVENANCE RESULT", result);
+        console.log("PROVENANCE DATA", provenanceData);
+        setIsTraceabilityModalOpen(true);
+        console.log("isTraceabilityModalOpen", isTraceabilityModalOpen);
+      } else {
+        console.log("No provenance data found for product ID:", productId);
+        // Manejar el caso de datos vacíos
+      }
+    } catch (error) {
+      console.error("Error fetching provenance data:", error);
+      // Manejar el error apropiadamente en la interfaz de usuario
+    }
   };
 
   const fetchOwnershipData = async () => {
@@ -583,7 +618,7 @@ function App(): JSX.Element {
                 </div>
             </div>
             <DataEntry
-              signer={signer}
+              signer={appSigner}
               contract={contract}
               address={address}
               name={name}

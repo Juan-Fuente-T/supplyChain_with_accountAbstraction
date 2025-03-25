@@ -119,6 +119,7 @@ export function findProductsByInitialNumber(initialNumber: number) {
       }
     }
   }
+  return results;
 }
 
 /**

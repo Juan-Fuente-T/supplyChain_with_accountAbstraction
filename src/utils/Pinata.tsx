@@ -1,4 +1,4 @@
-import axios from 'axios';
+import  axios from 'axios';
 import FormData from 'form-data';
 
 const key = process.env.REACT_APP_PINATA_KEY;
